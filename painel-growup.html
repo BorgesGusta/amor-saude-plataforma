@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Painel interno · Growup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2624;
+    --ink-soft:#5C6B67;
+    --paper:#F7F7F5;
+    --surface:#FFFFFF;
+    --line:#E1E0DA;
+    --accent:#44546B;
+    --accent-soft:#EEF0F3;
+    --ok-bg:#E1F5EE; --ok-tx:#085041;
+    --fail-bg:#FCEBEB; --fail-tx:#A32D2D;
+    --pend-bg:#FCF3DC; --pend-tx:#8A6300;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:0 0 56px;}
+  .header{
+    background:var(--surface);
+    border-bottom:1px solid var(--line);
+    padding:20px 32px;
+    margin-bottom:28px;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    flex-wrap:wrap;
+  }
+  .tag{
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.05em;
+    color:#fff;
+    background:var(--accent);
+    padding:4px 9px;
+    border-radius:6px;
+  }
+  .clinic-select{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-weight:700;
+    font-size:18px;
+  }
+  .clinic-select svg{width:14px;height:14px;}
+  .header .spacer{flex:1;}
+  .period{
+    background:var(--accent-soft);
+    color:var(--accent);
+    border-radius:999px;
+    padding:8px 16px;
+    font-size:13px;
+    font-weight:600;
+  }
+  .section{padding:0 32px;}
+  .label{
+    font-size:13px;
+    color:var(--ink-soft);
+    font-weight:500;
+    margin:0 0 12px;
+  }
+  .metrics{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-bottom:24px;
+  }
+  .metric{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 18px;
+  }
+  .metric.highlight{background:var(--accent);border-color:var(--accent);}
+  .metric .m-label{font-size:12.5px;color:var(--ink-soft);margin:0 0 8px;}
+  .metric.highlight .m-label{color:#cfd6e0;}
+  .metric .m-val{
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:24px;
+    font-weight:700;
+    margin:0;
+  }
+  .metric.highlight .m-val{color:#fff;}
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:22px;
+    margin-bottom:24px;
+  }
+  .split{display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:center;}
+  .donut{
+    width:130px;height:130px;border-radius:50%;
+    background:conic-gradient(#D85A30 0% 87.4%, #1D9E75 87.4% 100%);
+    position:relative;margin:0 auto;
+  }
+  .donut::after{content:'';position:absolute;inset:20px;background:var(--surface);border-radius:50%;}
+  .legend-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .legend-row:last-child{margin-bottom:0;}
+  .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .legend-row .lname{font-size:14px;flex:1;}
+  .legend-row .lval{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;font-weight:500;color:var(--ink);
+  }
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  thead th{
+    text-align:left;
+    font-size:12px;
+    color:var(--ink-soft);
+    font-weight:500;
+    padding:0 10px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  tbody td{
+    padding:11px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  .mono{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--ink-soft);}
+  .badge{
+    display:inline-block;
+    font-size:11.5px;
+    font-weight:600;
+    padding:3px 10px;
+    border-radius:999px;
+  }
+  .badge.ok{background:var(--ok-bg);color:var(--ok-tx);}
+  .badge.fail{background:var(--fail-bg);color:var(--fail-tx);}
+  .cat-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px;}
+  @media (max-width:680px){
+    .metrics{grid-template-columns:repeat(2,1fr);}
+    .split{grid-template-columns:1fr;}
+    table{font-size:12px;}
+    thead th:nth-child(2), tbody td:nth-child(2){display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <span class="tag">GROWUP</span>
+    <div class="clinic-select">
+      Amor Saúde
+      <svg viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--ink-soft)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <span class="spacer"></span>
+    <span class="period">Junho 2026</span>
+    <button id="logoutBtn" style="background:none;border:none;color:var(--ink-soft);font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;">Sair</button>
+  </div>
+
+  <div class="section">
+
+    <div class="metrics">
+      <div class="metric">
+        <p class="m-label">Disparos totais</p>
+        <p class="m-val">1.842</p>
+      </div>
+      <div class="metric">
+        <p class="m-label">Entregues</p>
+        <p class="m-val">1.805</p>
+      </div>
+      <div class="metric">
+        <p class="m-label">Falharam</p>
+        <p class="m-val">37</p>
+      </div>
+      <div class="metric highlight">
+        <p class="m-label">A faturar este mês</p>
+        <p class="m-val">R$ 262,30</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="label">Custo por categoria</p>
+      <div class="split">
+        <div class="donut"></div>
+        <div>
+          <div class="legend-row">
+            <span class="dot" style="background:#D85A30;"></span>
+            <span class="lname">Marketing · 740 msgs</span>
+            <span class="lval">R$ 229,40</span>
+          </div>
+          <div class="legend-row">
+            <span class="dot" style="background:#1D9E75;"></span>
+            <span class="lname">Utilidade · 1.102 msgs</span>
+            <span class="lval">R$ 32,90</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="label">Log de disparos · 10 mais recentes</p>
+    <div class="card" style="padding:18px 22px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Data/hora</th>
+            <th>Telefone</th>
+            <th>Especialidade</th>
+            <th>Categoria</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="mono">24/06 14:32</td><td class="mono">(94) 9819*-**66</td><td>Oftalmologia</td><td><span class="cat-dot" style="background:#D85A30;"></span>Marketing</td><td><span class="badge ok">Entregue</span></td></tr>
+          <tr><td class="mono">24/06 14:18</td><td class="mono">(94) 9912*-**04</td><td>Nutrição</td><td><span class="cat-dot" style="background:#D85A30;"></span>Marketing</td><td><span class="badge ok">Entregue</span></td></tr>
+          <tr><td class="mono">24/06 13:55</td><td class="mono">(94) 9876*-**21</td><td>Odontologia</td><td><span class="cat-dot" style="background:#1D9E75;"></span>Utilidade</td><td><span class="badge ok">Entregue</span></td></tr>
+          <tr><td class="mono">24/06 13:40</td><td class="mono">(94) 9701*-**88</td><td>Ginecologia</td><td><span class="cat-dot" style="background:#D85A30;"></span>Marketing</td><td><span class="badge fail">Falhou</span></td></tr>
+          <tr><td class="mono">24/06 13:22</td><td class="mono">(94) 9933*-**47</td><td>Oftalmologia</td><td><span class="cat-dot" style="background:#D85A30;"></span>Marketing</td><td><span class="badge ok">Entregue</span></td></tr>
+          <tr><td class="mono">24/06 12:58</td><td class="mono">(94) 9845*-**13</td><td>Nutrição</td><td><span class="cat-dot" style="background:#1D9E75;"></span>Utilidade</td><td><span class="badge ok">Entregue</span></td></tr>
+          <tr><td class="mono">24/06 12:41</td><td class="mono">(94) 9760*-**59</td><td>Odontologia</td><td><span class="cat-dot" style="background:#D85A30;"></span>Marketing</td><td><span class="badge ok">Entregue</span></td></tr>
+          <tr><td class="mono">24/06 12:15</td><td class="mono">(94) 9688*-**30</td><td>Ginecologia</td><td><span class="cat-dot" style="background:#D85A30;"></span>Marketing</td><td><span class="badge ok">Entregue</span></td></tr>
+          <tr><td class="mono">24/06 11:50</td><td class="mono">(94) 9912*-**72</td><td>Oftalmologia</td><td><span class="cat-dot" style="background:#1D9E75;"></span>Utilidade</td><td><span class="badge ok">Entregue</span></td></tr>
+          <tr><td class="mono">24/06 11:33</td><td class="mono">(94) 9854*-**05</td><td>Nutrição</td><td><span class="cat-dot" style="background:#D85A30;"></span>Marketing</td><td><span class="badge fail">Falhou</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+<script>
+  const session = JSON.parse(sessionStorage.getItem('amorSaudeSession') || 'null');
+  if (!session || session.role !== 'admin_growup') {
+    window.location.href = 'index.html';
+  }
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    sessionStorage.removeItem('amorSaudeSession');
+    window.location.href = 'index.html';
+  });
+</script>
+</body>
+</html>
