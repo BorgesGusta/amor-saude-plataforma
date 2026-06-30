@@ -97,6 +97,11 @@
     <p class="sub">Registre o paciente para liberar a oferta personalizada durante a espera.</p>
 
     <div class="field">
+      <label for="nome">Nome do paciente</label>
+      <input type="text" id="nome" placeholder="Nome completo" autocomplete="off" />
+    </div>
+
+    <div class="field">
       <label for="telefone">WhatsApp do paciente</label>
       <input type="tel" id="telefone" placeholder="(94) 98193-9666" autocomplete="off" />
     </div>
@@ -169,6 +174,9 @@
     chipsContainer.appendChild(btn);
   });
 
+  const nomeInput = document.getElementById('nome');
+  nomeInput.focus();
+
   const telefoneInput = document.getElementById('telefone');
   telefoneInput.addEventListener('input', (e) => {
     let v = e.target.value.replace(/\D/g,'').slice(0,11);
@@ -187,8 +195,15 @@
 
   submitBtn.addEventListener('click', async () => {
     errorMsg.style.display = 'none';
+    const nome = nomeInput.value.trim();
     const digits = telefoneInput.value.replace(/\D/g,'');
 
+    if (nome.length < 2) {
+      errorMsg.textContent = 'Informe o nome do paciente antes de continuar.';
+      errorMsg.style.display = 'block';
+      nomeInput.focus();
+      return;
+    }
     if (digits.length < 10) {
       errorMsg.textContent = 'Confirme o número com DDD antes de continuar.';
       errorMsg.style.display = 'block';
@@ -208,7 +223,7 @@
       await fetch(WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telefone, especialidade: selected })
+        body: JSON.stringify({ nome, telefone, especialidade: selected })
       });
 
       formView.classList.add('hide');
@@ -226,6 +241,7 @@
   });
 
   resetBtn.addEventListener('click', () => {
+    nomeInput.value = '';
     telefoneInput.value = '';
     document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed','false'));
     selected = null;
@@ -233,6 +249,7 @@
     stepWpp.classList.remove('in');
     confirmView.classList.remove('show');
     formView.classList.remove('hide');
+    nomeInput.focus();
   });
 </script>
 
