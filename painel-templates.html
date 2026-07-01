@@ -82,19 +82,55 @@
   .mini-bar-fill{height:6px;border-radius:4px;background:var(--teal);}
 
   /* MODAL */
-  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;}
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:16px;}
   .modal-overlay.open{display:flex;}
-  .modal{background:#fff;border-radius:16px;padding:28px;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;}
-  .modal h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:700;margin:0 0 6px;}
-  .modal p.sub{font-size:13px;color:var(--ink-soft);margin:0 0 22px;}
-  .field{margin-bottom:16px;}
-  .field label{display:block;font-size:12.5px;font-weight:500;margin-bottom:6px;color:var(--ink);}
-  .field input,.field select,.field textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px;font-family:'Inter',sans-serif;color:var(--ink);background:var(--paper);resize:vertical;}
+  .modal{background:#fff;border-radius:16px;width:100%;max-width:880px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;}
+  .modal-header{padding:24px 28px 0;flex-shrink:0;}
+  .modal-header h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:700;margin:0 0 4px;}
+  .modal-header p.sub{font-size:13px;color:var(--ink-soft);margin:0 0 16px;}
+  .modal-body{display:grid;grid-template-columns:1fr 280px;overflow:hidden;flex:1;}
+  .modal-form{overflow-y:auto;padding:16px 28px 0;}
+  .modal-preview-col{background:#F0F0F0;border-left:1px solid var(--line);padding:20px 16px;overflow-y:auto;display:flex;flex-direction:column;align-items:center;}
+  .modal-preview-col .preview-label{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;}
+  /* Celular mockup */
+  .phone-frame{background:#fff;border-radius:24px;width:240px;min-height:380px;box-shadow:0 4px 24px rgba(0,0,0,.18);overflow:hidden;display:flex;flex-direction:column;}
+  .phone-status{background:#075E54;height:36px;display:flex;align-items:center;padding:0 12px;gap:8px;flex-shrink:0;}
+  .phone-status .avatar{width:26px;height:26px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;}
+  .phone-status .contact{flex:1;}
+  .phone-status .cname{font-size:11.5px;color:#fff;font-weight:600;}
+  .phone-status .csub{font-size:9.5px;color:#acdfce;}
+  .phone-chat{flex:1;background:#ECE5DD;padding:10px;display:flex;flex-direction:column;gap:8px;}
+  .phone-bubble{background:#fff;border-radius:12px 12px 12px 2px;padding:0;max-width:96%;box-shadow:0 1px 2px rgba(0,0,0,.1);overflow:hidden;}
+  .bubble-media{width:100%;height:90px;background:linear-gradient(135deg,#2BAFBE22,#2BAFBE44);display:flex;align-items:center;justify-content:center;color:var(--teal-deep);font-size:11px;font-weight:500;}
+  .bubble-media.hidden{display:none;}
+  .bubble-text{padding:8px 10px 6px;font-size:11.5px;line-height:1.5;color:#111;}
+  .bubble-footer{font-size:10px;color:#999;padding:0 10px 6px;}
+  .bubble-btn{border-top:1px solid #f0f0f0;padding:7px 10px;text-align:center;color:#075E54;font-size:11px;font-weight:600;display:none;}
+  .bubble-btn.show{display:block;}
+  .phone-time{font-size:9px;color:#999;text-align:right;padding:2px 8px 6px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;font-weight:500;margin-bottom:5px;color:var(--ink);}
+  .field input,.field select,.field textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px;font-family:'Inter',sans-serif;color:var(--ink);background:var(--paper);resize:vertical;}
   .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--teal-deep);box-shadow:0 0 0 3px rgba(43,175,190,.12);}
-  .field .hint{font-size:11.5px;color:var(--ink-soft);margin:5px 0 0;}
-  .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:16px;border-top:1px solid var(--line);}
+  .field .hint{font-size:11.5px;color:var(--ink-soft);margin:4px 0 0;}
+  .var-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .var-tag{background:var(--mist);color:var(--teal-ink);font-size:11.5px;font-weight:600;padding:4px 8px;border-radius:6px;white-space:nowrap;font-family:'JetBrains Mono',monospace;}
+  .var-input{flex:1;border:1.5px solid var(--line);border-radius:8px;padding:7px 10px;font-size:12.5px;font-family:'Inter',sans-serif;color:var(--ink);background:var(--paper);}
+  .var-input:focus{outline:none;border-color:var(--teal-deep);}
+  .section-divider{font-size:11.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 10px;padding-top:14px;border-top:1px solid var(--line);}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+  .tipo-btn{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink-soft);}
+  .tipo-btn.active{border-color:var(--teal-deep);color:var(--teal-deep);background:var(--mist);}
+  .modal-footer{padding:16px 28px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:space-between;align-items:center;flex-shrink:0;background:#fff;}
+  .modal-footer .left{font-size:12px;color:var(--ink-soft);}
   .btn-ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
-  .variaveis-preview{background:var(--mist);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.6;margin-top:8px;min-height:48px;color:var(--ink);}
+  .upload-area{border:2px dashed var(--line);border-radius:10px;padding:16px;text-align:center;cursor:pointer;color:var(--ink-soft);font-size:12.5px;transition:border .15s;}
+  .upload-area:hover{border-color:var(--teal-deep);color:var(--teal-deep);}
+  .senha-field{display:flex;gap:8px;align-items:flex-end;}
+  @media(max-width:700px){
+    .modal-body{grid-template-columns:1fr;}
+    .modal-preview-col{display:none;}
+  }
 
   /* DETALHE LATERAL (drawer) */
   .drawer{position:fixed;top:0;right:-480px;width:460px;height:100vh;background:#fff;border-left:1px solid var(--line);z-index:150;transition:right .25s;overflow-y:auto;padding:28px;}
@@ -267,51 +303,159 @@
 <!-- MODAL CRIAR TEMPLATE -->
 <div class="modal-overlay" id="modalCriar">
   <div class="modal">
-    <h2>Novo template</h2>
-    <p class="sub">Preencha os dados e envie para aprovação da Meta. Após aprovado, vincule a uma especialidade.</p>
 
-    <div class="field">
-      <label>Nome do template <span style="color:var(--ink-soft);font-weight:400;">(sem espaços, só letras e _)</span></label>
-      <input type="text" id="tplNome" placeholder="ex: oferta_odontologia_limpeza" oninput="atualizarPreview()"/>
+    <div class="modal-header">
+      <h2>Novo template WhatsApp</h2>
+      <p class="sub">Preencha os dados e envie para aprovação da Meta. Após aprovado, vincule a uma especialidade no painel de regras.</p>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-      <div class="field">
-        <label>Categoria</label>
-        <select id="tplCategoria">
-          <option value="marketing">Marketing</option>
-          <option value="utilidade">Utilidade</option>
-        </select>
+    <div class="modal-body">
+
+      <!-- COLUNA ESQUERDA: FORMULÁRIO -->
+      <div class="modal-form">
+
+        <div class="field">
+          <label>Nome do template <span style="color:var(--ink-soft);font-weight:400;">(sem espaços, só letras minúsculas e _)</span></label>
+          <input type="text" id="tplNome" placeholder="ex: oferta_odontologia_limpeza" oninput="normalizarNome(this);atualizarPreview()"/>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="field">
+            <label>Categoria</label>
+            <select id="tplCategoria" onchange="atualizarPreview()">
+              <option value="marketing">Marketing</option>
+              <option value="utilidade">Utilidade</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Especialidade</label>
+            <select id="tplEspecialidade">
+              <option value="oftalmologia">Oftalmologia</option>
+              <option value="nutricionista">Nutricionista</option>
+              <option value="ginecologia">Ginecologia</option>
+              <option value="odontologia">Odontologia</option>
+              <option value="nova">+ Nova especialidade...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Nova especialidade (aparece quando selecionado) -->
+        <div class="field" id="novaEspField" style="display:none;">
+          <label>Nome da nova especialidade</label>
+          <input type="text" id="novaEspNome" placeholder="ex: Dermatologia"/>
+        </div>
+
+        <!-- CABEÇALHO -->
+        <div class="section-divider">Cabeçalho · opcional</div>
+        <div class="btn-row" id="tipoHeader">
+          <button class="tipo-btn active" onclick="selecionarHeader(this,'nenhum')">Nenhum</button>
+          <button class="tipo-btn" onclick="selecionarHeader(this,'texto')">Texto</button>
+          <button class="tipo-btn" onclick="selecionarHeader(this,'imagem')">Imagem</button>
+        </div>
+        <div id="headerTextoField" style="display:none;" class="field">
+          <input type="text" id="tplHeaderTexto" placeholder="Texto do cabeçalho (máx. 60 caracteres)" maxlength="60" oninput="atualizarPreview()"/>
+        </div>
+        <div id="headerImagemField" style="display:none;">
+          <div class="upload-area" onclick="document.getElementById('tplImagem').click()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="margin-bottom:6px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="var(--teal-deep)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>Clique para fazer upload da imagem</div>
+            <div style="font-size:11px;margin-top:3px;">PNG ou JPG · máx. 5MB · proporção 1.91:1 recomendada</div>
+          </div>
+          <input type="file" id="tplImagem" accept="image/*" style="display:none;" onchange="previewImagem(this)"/>
+          <div id="imagemNome" style="font-size:12px;color:var(--teal-deep);margin-top:6px;"></div>
+        </div>
+
+        <!-- CORPO -->
+        <div class="section-divider">Corpo da mensagem</div>
+        <div class="field">
+          <textarea id="tplCorpo" rows="4" placeholder="Use {{1}}, {{2}}, {{3}} para variáveis. Ex: Olá {{1}}, você ganhou {{2}}% de desconto!" oninput="detectarVariaveis();atualizarPreview()"></textarea>
+          <p class="hint">{{1}} = nome do paciente (sempre) · {{2}} em diante = variáveis da oferta</p>
+        </div>
+
+        <!-- VARIÁVEIS DETECTADAS -->
+        <div id="variaveisSection" style="display:none;">
+          <div class="section-divider">Declare o que é cada variável</div>
+          <div id="variaveisContainer"></div>
+        </div>
+
+        <!-- RODAPÉ -->
+        <div class="section-divider">Rodapé · opcional</div>
+        <div class="field">
+          <input type="text" id="tplRodape" placeholder="ex: Amor Saúde · Medicina, Odontologia e Exames" maxlength="60" oninput="atualizarPreview()"/>
+          <p class="hint">Texto pequeno abaixo da mensagem (máx. 60 caracteres)</p>
+        </div>
+
+        <!-- BOTÃO CTA -->
+        <div class="section-divider">Botão · opcional</div>
+        <div class="btn-row" id="tipoBotao">
+          <button class="tipo-btn active" onclick="selecionarBotao(this,'nenhum')">Nenhum</button>
+          <button class="tipo-btn" onclick="selecionarBotao(this,'url')">Link (URL)</button>
+          <button class="tipo-btn" onclick="selecionarBotao(this,'telefone')">Ligar</button>
+          <button class="tipo-btn" onclick="selecionarBotao(this,'rapida')">Resposta rápida</button>
+        </div>
+        <div id="botaoFields" style="display:none;margin-top:8px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="field" style="margin:0;">
+              <label>Texto do botão</label>
+              <input type="text" id="tplBtnTexto" placeholder="ex: Ver oferta" maxlength="25" oninput="atualizarPreview()"/>
+            </div>
+            <div class="field" style="margin:0;" id="botaoUrlField">
+              <label>URL ou número</label>
+              <input type="text" id="tplBtnUrl" placeholder="https://..." oninput="atualizarPreview()"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- SENHA DE CONFIRMAÇÃO -->
+        <div class="section-divider">Confirmação</div>
+        <div class="field senha-field">
+          <div style="flex:1;">
+            <label>Confirme sua senha para enviar à Meta</label>
+            <input type="password" id="tplSenha" placeholder="••••••••"/>
+          </div>
+        </div>
+        <div style="height:20px;"></div>
+
       </div>
-      <div class="field">
-        <label>Especialidade</label>
-        <select id="tplEspecialidade">
-          <option value="oftalmologia">Oftalmologia</option>
-          <option value="nutricionista">Nutricionista</option>
-          <option value="ginecologia">Ginecologia</option>
-          <option value="odontologia">Odontologia</option>
-        </select>
+
+      <!-- COLUNA DIREITA: PREVIEW CELULAR -->
+      <div class="modal-preview-col">
+        <div class="preview-label">Preview WhatsApp</div>
+        <div class="phone-frame">
+          <div class="phone-status">
+            <div class="avatar">AS</div>
+            <div class="contact">
+              <div class="cname">Amor Saúde</div>
+              <div class="csub">online</div>
+            </div>
+          </div>
+          <div class="phone-chat">
+            <div class="phone-bubble">
+              <div class="bubble-media hidden" id="prevMedia">📷 Imagem</div>
+              <div id="prevHeader" style="display:none;font-size:12px;font-weight:700;padding:8px 10px 0;color:#111;"></div>
+              <div class="bubble-text" id="prevTexto">Sua mensagem aparecerá aqui...</div>
+              <div class="bubble-footer" id="prevRodape" style="display:none;"></div>
+              <div class="phone-time">14:12 ✓✓</div>
+              <div class="bubble-btn" id="prevBtn"></div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:#aaa;text-align:center;line-height:1.5;">Preview aproximado.<br>Aparência final pode variar.</div>
       </div>
-    </div>
 
-    <div class="field">
-      <label>Corpo da mensagem</label>
-      <textarea id="tplCorpo" rows="4" placeholder="Use {{1}}, {{2}}, {{3}} para variáveis. Ex: Olá {{1}}, você ganhou {{2}}% de desconto!" oninput="atualizarPreview()"></textarea>
-      <p class="hint">{{1}} = nome do paciente (sempre), {{2}} em diante = variáveis da oferta</p>
-    </div>
-
-    <div class="field">
-      <label>Preview da mensagem</label>
-      <div class="variaveis-preview" id="previewTexto" style="color:var(--ink-soft);font-style:italic;">O preview aparece aqui conforme você digita...</div>
     </div>
 
     <div class="modal-footer">
-      <button class="btn-ghost" onclick="fecharModalCriar()">Cancelar</button>
-      <button class="btn-primary" onclick="submeterTemplate()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Enviar para Meta
-      </button>
+      <div class="left">Após envio, a Meta analisa em até 24h.</div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-ghost" onclick="fecharModalCriar()">Cancelar</button>
+        <button class="btn-primary" onclick="submeterTemplate()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Enviar para Meta
+        </button>
+      </div>
     </div>
+
   </div>
 </div>
 
@@ -537,32 +681,151 @@ function ativarTemplate(id){
   fecharDrawer();
 }
 
+// ── MODAL ──────────────────────────────────────────────
+let tipoHeaderAtual = 'nenhum';
+let tipoBotaoAtual = 'nenhum';
+
+function normalizarNome(input){
+  input.value = input.value.toLowerCase().replace(/[^a-z0-9_]/g,'');
+}
+
+function selecionarHeader(btn, tipo){
+  tipoHeaderAtual = tipo;
+  document.querySelectorAll('#tipoHeader .tipo-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('headerTextoField').style.display = tipo==='texto' ? 'block' : 'none';
+  document.getElementById('headerImagemField').style.display = tipo==='imagem' ? 'block' : 'none';
+  document.getElementById('prevMedia').classList.toggle('hidden', tipo!=='imagem');
+  document.getElementById('prevHeader').style.display = tipo==='texto' ? 'block' : 'none';
+  atualizarPreview();
+}
+
+function selecionarBotao(btn, tipo){
+  tipoBotaoAtual = tipo;
+  document.querySelectorAll('#tipoBotao .tipo-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('botaoFields').style.display = tipo==='nenhum' ? 'none' : 'block';
+  document.getElementById('botaoUrlField').style.display = tipo==='rapida' ? 'none' : 'block';
+  atualizarPreview();
+}
+
+function previewImagem(input){
+  if(input.files && input.files[0]){
+    document.getElementById('imagemNome').textContent = '✓ ' + input.files[0].name;
+    document.getElementById('prevMedia').style.background = 'linear-gradient(135deg,#2BAFBE33,#2BAFBE66)';
+    atualizarPreview();
+  }
+}
+
+document.getElementById('tplEspecialidade').addEventListener('change', function(){
+  document.getElementById('novaEspField').style.display = this.value==='nova' ? 'block' : 'none';
+});
+
+function detectarVariaveis(){
+  const corpo = document.getElementById('tplCorpo').value;
+  const matches = [...new Set([...corpo.matchAll(/\{\{(\d+)\}\}/g)].map(m => parseInt(m[1])))].sort((a,b)=>a-b);
+  const container = document.getElementById('variaveisContainer');
+  const section = document.getElementById('variaveisSection');
+
+  if(matches.length === 0){ section.style.display='none'; return; }
+  section.style.display='block';
+
+  // Mantém valores existentes
+  const existentes = {};
+  container.querySelectorAll('.var-input').forEach(inp => {
+    existentes[inp.dataset.var] = inp.value;
+  });
+
+  container.innerHTML = matches.map(n => `
+    <div class="var-row">
+      <span class="var-tag">{{${n}}}</span>
+      <input class="var-input" data-var="${n}" placeholder="${n===1 ? 'Nome do paciente (fixo)' : 'Descrição da variável ' + n}" value="${existentes[n]||''}" ${n===1?'readonly style="background:#f5f5f5;color:#999;"':''} oninput="atualizarPreview()"/>
+    </div>
+  `).join('');
+}
+
+function atualizarPreview(){
+  const corpo = document.getElementById('tplCorpo').value;
+  const rodape = document.getElementById('tplRodape').value;
+  const headerTexto = document.getElementById('tplHeaderTexto')?.value || '';
+  const btnTexto = document.getElementById('tplBtnTexto')?.value || '';
+
+  // Substitui variáveis por exemplos
+  const varInputs = document.querySelectorAll('.var-input');
+  const exemplos = { 1: 'Gustavo' };
+  varInputs.forEach(inp => {
+    const n = inp.dataset.var;
+    if(n > 1) exemplos[n] = inp.placeholder.includes('Descrição') ? `[var ${n}]` : (inp.value || `[var ${n}]`);
+  });
+
+  let textoPreview = corpo || 'Sua mensagem aparecerá aqui...';
+  Object.entries(exemplos).forEach(([k,v]) => {
+    textoPreview = textoPreview.replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), `<strong>${v}</strong>`);
+  });
+
+  document.getElementById('prevTexto').innerHTML = textoPreview;
+
+  const prevRodape = document.getElementById('prevRodape');
+  prevRodape.style.display = rodape ? 'block' : 'none';
+  prevRodape.textContent = rodape;
+
+  const prevHeader = document.getElementById('prevHeader');
+  prevHeader.textContent = headerTexto;
+  prevHeader.style.display = tipoHeaderAtual==='texto' && headerTexto ? 'block' : 'none';
+
+  const prevBtn = document.getElementById('prevBtn');
+  if(tipoBotaoAtual !== 'nenhum' && btnTexto){
+    prevBtn.textContent = btnTexto;
+    prevBtn.classList.add('show');
+  } else {
+    prevBtn.classList.remove('show');
+  }
+}
+
 function abrirModalCriar(){
   document.getElementById('modalCriar').classList.add('open');
 }
 
 function fecharModalCriar(){
   document.getElementById('modalCriar').classList.remove('open');
-  document.getElementById('tplNome').value='';
-  document.getElementById('tplCorpo').value='';
-  document.getElementById('previewTexto').innerHTML='<span style="color:var(--ink-soft);font-style:italic;">O preview aparece aqui conforme você digita...</span>';
-}
-
-function atualizarPreview(){
-  const corpo = document.getElementById('tplCorpo').value;
-  if(!corpo){ document.getElementById('previewTexto').innerHTML='<span style="color:var(--ink-soft);font-style:italic;">O preview aparece aqui conforme você digita...</span>'; return; }
-  const preview = corpo
-    .replace(/\{\{1\}\}/g,'<strong>Gustavo</strong>')
-    .replace(/\{\{2\}\}/g,'<strong>[var 2]</strong>')
-    .replace(/\{\{3\}\}/g,'<strong>[var 3]</strong>');
-  document.getElementById('previewTexto').innerHTML = preview;
+  // Reset
+  ['tplNome','tplCorpo','tplRodape','tplHeaderTexto','tplBtnTexto','tplBtnUrl','tplSenha'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value='';
+  });
+  document.getElementById('variaveisSection').style.display='none';
+  document.getElementById('variaveisContainer').innerHTML='';
+  document.getElementById('novaEspField').style.display='none';
+  document.getElementById('headerTextoField').style.display='none';
+  document.getElementById('headerImagemField').style.display='none';
+  document.getElementById('botaoFields').style.display='none';
+  document.getElementById('prevMedia').classList.add('hidden');
+  document.getElementById('prevHeader').style.display='none';
+  document.getElementById('prevRodape').style.display='none';
+  document.getElementById('prevBtn').classList.remove('show');
+  document.getElementById('prevTexto').innerHTML='Sua mensagem aparecerá aqui...';
+  tipoHeaderAtual='nenhum'; tipoBotaoAtual='nenhum';
+  document.querySelectorAll('#tipoHeader .tipo-btn, #tipoBotao .tipo-btn').forEach((b,i) => {
+    b.classList.toggle('active', i===0 || i===4);
+  });
 }
 
 function submeterTemplate(){
   const nome = document.getElementById('tplNome').value.trim();
   const corpo = document.getElementById('tplCorpo').value.trim();
-  if(!nome || !corpo){ alert('Preencha o nome e o corpo da mensagem.'); return; }
-  alert(`✓ Template "${nome}" enviado para análise da Meta.\n\nEm produção, isso chamaria a API da Meta para criar o template e salvaria no banco com status "pendente".`);
+  const senha = document.getElementById('tplSenha').value;
+
+  if(!nome){ alert('Informe o nome do template.'); return; }
+  if(!corpo){ alert('Preencha o corpo da mensagem.'); return; }
+  if(!senha){ alert('Confirme sua senha para continuar.'); return; }
+
+  // Coleta variáveis declaradas
+  const variaveis = [];
+  document.querySelectorAll('.var-input:not([readonly])').forEach(inp => {
+    variaveis.push({ label: inp.value || `Variável ${inp.dataset.var}`, valor: '' });
+  });
+
+  alert(`✓ Template "${nome}" enviado para análise da Meta.\n\nVariáveis declaradas: ${variaveis.length}\nAguarde aprovação em até 24h.\n\nEm produção, isso chamaria a API da Meta e salvaria no banco com status "pendente".`);
   fecharModalCriar();
 }
 
