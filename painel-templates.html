@@ -667,65 +667,8 @@ function filtrar(btn, tipo){
   renderTabela();
 }
 
-function abrirDrawer(id){
-  const t = templates.find(x => x.id===id);
-  if(!t) return;
-  const corpoExemplo = t.corpo
-    .replace('{{1}}', '<strong>Gustavo</strong>')
-    .replace('{{2}}', t.variaveis[1] ? '<strong>15%</strong>' : '')
-    .replace('{{3}}', t.variaveis[2] ? '<strong>26/07</strong>' : '');
-
-  document.getElementById('drawerContent').innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-      ${statusBadge(t.status)}
-      ${t.ativo ? '<span class="badge ativo">● ativo agora</span>' : ''}
-    </div>
-    <h2 style="margin:8px 0 2px;">${t.display}</h2>
-    <div class="tpl-mono" style="margin-bottom:4px;">${t.nome}</div>
-
-    <div class="drawer-section">
-      <h3>Informações</h3>
-      <div class="kv"><span class="k">Especialidade</span><span class="v">${t.especialidade}</span></div>
-      <div class="kv"><span class="k">Categoria</span><span class="v">${t.categoria==='marketing' ? 'Marketing' : 'Utilidade'}</span></div>
-      <div class="kv"><span class="k">Criado em</span><span class="v">${t.criado}</span></div>
-      <div class="kv"><span class="k">Variáveis</span><span class="v">${t.variaveis.join(', ')}</span></div>
-    </div>
-
-    <div class="drawer-section">
-      <h3>Preview da mensagem</h3>
-      <div class="preview-bubble">${corpoExemplo}</div>
-    </div>
-
-    ${t.disparos > 0 ? `
-    <div class="drawer-section">
-      <h3>Desempenho · Junho 2026</h3>
-      <div class="kv"><span class="k">Total de disparos</span><span class="v">${t.disparos.toLocaleString('pt-BR')}</span></div>
-      <div class="kv"><span class="k">Taxa de leitura</span><span class="v">${t.leitura}%</span></div>
-      <div class="kv"><span class="k">Custo acumulado</span><span class="v">R$ ${t.custo.toFixed(2).replace('.',',')}</span></div>
-    </div>` : `
-    <div class="drawer-section">
-      <h3>Desempenho</h3>
-      <p style="font-size:13px;color:var(--ink-soft);">Nenhum disparo ainda — aguardando aprovação da Meta para ativar.</p>
-    </div>`}
-
-    <div class="drawer-section">
-      <div style="display:flex;gap:8px;">
-        ${!t.ativo && t.status==='aprovado' ? `<button class="btn-primary" style="flex:1;justify-content:center;" onclick="ativarTemplate(${t.id})">Ativar para ${t.especialidade}</button>` : ''}
-        <button class="btn-ghost" style="flex:1;" onclick="fecharDrawer()">Fechar</button>
-      </div>
-    </div>
-  `;
-  document.getElementById('drawer').classList.add('open');
-}
-
 function fecharDrawer(){
   document.getElementById('drawer').classList.remove('open');
-}
-
-function ativarTemplate(id){
-  const t = templates.find(x=>x.id===id);
-  alert(`✓ Template "${t.display}" ativado para ${t.especialidade}.\n\nEm produção, isso atualizaria a tabela templates_especialidade no Supabase.`);
-  fecharDrawer();
 }
 
 async function sincronizarTemplates() {
@@ -936,12 +879,38 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   window.location.href = 'index.html';
 });
 
+const ESPECIALIDADES = ['oftalmologia','nutricionista','ginecologia','odontologia'];
+
 function abrirDrawer(id){
   const t = templates.find(x => x.id===id);
   if(!t) return;
-  const corpoExemplo = t.variaveis.length > 0
-    ? `Variáveis: ${t.variaveis.join(', ')}`
-    : 'Sem variáveis cadastradas';
+
+  // Monta campos de variáveis editáveis
+  let varsHTML = '';
+  if(t.variaveis && t.variaveis.length > 0){
+    varsHTML = t.variaveis.map((v, i) => {
+      const label = typeof v === 'object' ? v.label : v;
+      const valor = typeof v === 'object' ? v.valor : '';
+      const isNome = i === 0 && (label.toLowerCase().includes('nome') || label.includes('1'));
+      return `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <span class="var-tag">{{${i+1}}}</span>
+          <div style="flex:1;">
+            <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:3px;">${label}</div>
+            ${isNome
+              ? `<div style="font-size:13px;color:var(--ink-soft);font-style:italic;">Preenchido automaticamente pela recepção</div>`
+              : `<input class="var-input" id="var_${i}" value="${valor}" placeholder="ex: 15%, 26/07..." style="width:100%;"/>`
+            }
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Monta opções de especialidade
+  const espOptions = ESPECIALIDADES.map(e =>
+    `<option value="${e}" ${t.especialidade?.toLowerCase()===e ? 'selected' : ''}>${e.charAt(0).toUpperCase()+e.slice(1)}</option>`
+  ).join('');
 
   document.getElementById('drawerContent').innerHTML = `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
@@ -949,16 +918,54 @@ function abrirDrawer(id){
       ${t.ativo ? '<span class="badge ativo">● ativo agora</span>' : ''}
     </div>
     <h2 style="margin:8px 0 2px;">${t.display}</h2>
-    <div class="tpl-mono" style="margin-bottom:4px;">${t.nome}</div>
+    <div class="tpl-mono" style="margin-bottom:16px;">${t.nome}</div>
 
+    <!-- VÍNCULO COM ESPECIALIDADE -->
     <div class="drawer-section">
-      <h3>Informações</h3>
-      <div class="kv"><span class="k">Especialidade</span><span class="v">${t.especialidade}</span></div>
-      <div class="kv"><span class="k">Categoria</span><span class="v">Marketing</span></div>
-      <div class="kv"><span class="k">Criado em</span><span class="v">${t.criado}</span></div>
-      <div class="kv"><span class="k">Variáveis</span><span class="v">${t.variaveis.length > 0 ? t.variaveis.join(', ') : '—'}</span></div>
+      <h3>Especialidade vinculada</h3>
+      ${t.especialidade
+        ? `<div class="kv"><span class="k">Atual</span><span class="v">${t.especialidade}</span></div>`
+        : `<p style="font-size:13px;color:var(--amber-tx);margin:0 0 10px;">⚠️ Sem vínculo — escolha uma especialidade para ativar</p>`
+      }
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select id="espSelect" style="flex:1;border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;font-family:'Inter',sans-serif;">
+          <option value="">Selecione...</option>
+          ${espOptions}
+        </select>
+        <button class="btn-primary" style="flex-shrink:0;" onclick="vincularEspecialidade('${t.nome}')">Vincular</button>
+      </div>
     </div>
 
+    <!-- ATIVAR/DESATIVAR -->
+    ${t.especialidade ? `
+    <div class="drawer-section">
+      <h3>Status nessa especialidade</h3>
+      ${t.ativo
+        ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--teal-deep);"></div>
+            <span style="font-size:13px;font-weight:500;">Ativo — disparando para ${t.especialidade}</span>
+           </div>
+           <button class="btn-ghost" style="width:100%;" onclick="desativarTemplate('${t.nome}','${t.especialidade}')">Desativar este template</button>`
+        : `<p style="font-size:13px;color:var(--ink-soft);margin:0 0 10px;">Inativo — não será usado nos disparos</p>
+           ${t.status==='aprovado'
+             ? `<button class="btn-primary" style="width:100%;justify-content:center;" onclick="ativarTemplate('${t.nome}','${t.especialidade}')">Ativar para ${t.especialidade}</button>`
+             : `<p style="font-size:12px;color:var(--amber-tx);">Aguardando aprovação da Meta para poder ativar.</p>`
+           }`
+      }
+    </div>` : ''}
+
+    <!-- VARIÁVEIS EDITÁVEIS -->
+    ${t.variaveis && t.variaveis.length > 0 ? `
+    <div class="drawer-section">
+      <h3>Variáveis da oferta</h3>
+      <p style="font-size:12px;color:var(--ink-soft);margin:0 0 10px;">Edite os valores sem precisar alterar o template na Meta.</p>
+      ${varsHTML}
+      <button class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="salvarVariaveis('${t.nome}')">
+        Salvar variáveis
+      </button>
+    </div>` : ''}
+
+    <!-- DESEMPENHO -->
     <div class="drawer-section">
       <h3>Desempenho · Junho 2026</h3>
       <div class="kv"><span class="k">Disparos enviados</span><span class="v">${t.disparos > 0 ? t.disparos : '—'}</span></div>
@@ -968,12 +975,106 @@ function abrirDrawer(id){
     </div>
 
     <div class="drawer-section">
-      <div style="display:flex;gap:8px;">
-        <button class="btn-ghost" style="flex:1;" onclick="fecharDrawer()">Fechar</button>
-      </div>
+      <button class="btn-ghost" style="width:100%;" onclick="fecharDrawer()">Fechar</button>
     </div>
   `;
   document.getElementById('drawer').classList.add('open');
+}
+
+async function vincularEspecialidade(templateNome){
+  const esp = document.getElementById('espSelect').value;
+  if(!esp){ alert('Selecione uma especialidade.'); return; }
+
+  try {
+    // Verifica se já tem linha na templates_especialidade pra esse template
+    const existente = await sbFetch(`templates_especialidade?template_nome=eq.${templateNome}&clinic_id=eq.amor_saude`);
+
+    if(existente.length > 0){
+      // Atualiza especialidade
+      await sbFetch(`templates_especialidade?template_nome=eq.${templateNome}&clinic_id=eq.amor_saude`, {
+        method: 'PATCH',
+        body: JSON.stringify({ especialidade: esp })
+      });
+    } else {
+      // Insere nova linha
+      await sbFetch('templates_especialidade', {
+        method: 'POST',
+        body: JSON.stringify({
+          especialidade: esp,
+          template_nome: templateNome,
+          ativo: false,
+          clinic_id: 'amor_saude'
+        })
+      });
+    }
+    fecharDrawer();
+    await carregarTemplates();
+  } catch(e) {
+    alert('Erro ao vincular: ' + e.message);
+  }
+}
+
+async function ativarTemplate(templateNome, especialidade){
+  try {
+    // Desativa qualquer ativo atual nessa especialidade
+    const ativos = await sbFetch(`templates_especialidade?especialidade=eq.${especialidade}&ativo=eq.true&clinic_id=eq.amor_saude`);
+    for(const a of ativos){
+      await sbFetch(`templates_especialidade?id=eq.${a.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ ativo: false })
+      });
+    }
+    // Ativa o novo
+    await sbFetch(`templates_especialidade?template_nome=eq.${templateNome}&clinic_id=eq.amor_saude`, {
+      method: 'PATCH',
+      body: JSON.stringify({ ativo: true })
+    });
+    fecharDrawer();
+    await carregarTemplates();
+  } catch(e) {
+    alert('Erro ao ativar: ' + e.message);
+  }
+}
+
+async function desativarTemplate(templateNome, especialidade){
+  if(!confirm(`Desativar "${templateNome}" para ${especialidade}? Nenhum template ficará ativo nessa especialidade até você ativar outro.`)) return;
+  try {
+    await sbFetch(`templates_especialidade?template_nome=eq.${templateNome}&clinic_id=eq.amor_saude`, {
+      method: 'PATCH',
+      body: JSON.stringify({ ativo: false })
+    });
+    fecharDrawer();
+    await carregarTemplates();
+  } catch(e) {
+    alert('Erro ao desativar: ' + e.message);
+  }
+}
+
+async function salvarVariaveis(templateNome){
+  const t = templates.find(x => x.nome === templateNome);
+  if(!t) return;
+
+  // Coleta valores dos inputs
+  const novasVars = t.variaveis.map((v, i) => {
+    const label = typeof v === 'object' ? v.label : v;
+    const input = document.getElementById(`var_${i}`);
+    const valor = input ? input.value.trim() : (typeof v === 'object' ? v.valor : '');
+    return { label, valor };
+  });
+
+  try {
+    await sbFetch(`ofertas_config?template_nome=eq.${templateNome}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ variaveis: JSON.stringify(novasVars) })
+    });
+    fecharDrawer();
+    await carregarTemplates();
+    // Feedback rápido
+    const btn = document.querySelector(`[onclick="salvarVariaveis('${templateNome}')"]`);
+    if(btn){ btn.textContent = '✓ Salvo!'; setTimeout(() => btn.textContent = 'Salvar variáveis', 2000); }
+  } catch(e) {
+    alert('Erro ao salvar: ' + e.message);
+  }
 }
 
 carregarTemplates();
