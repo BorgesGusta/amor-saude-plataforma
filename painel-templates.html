@@ -122,7 +122,7 @@
 <div class="wrap">
 
   <div class="header">
-    <img src="assets/logo_amor_saude.png" alt="Amor Saúde" class="logo" />
+    <img src="Assets/logo_amor_saude.png" alt="Amor Saúde" class="logo" />
     <div class="divider"></div>
     <div class="titles">
       <p>Painel da gestora</p>
@@ -322,55 +322,109 @@
 </div>
 
 <script>
-const templates = [
-  {
-    id:1, nome:'oferta_oftalmologia', display:'Oferta Oftalmologia',
-    especialidade:'Oftalmologia', categoria:'marketing',
-    status:'aprovado', ativo:true,
-    disparos:612, leitura:58, custo:189.72,
-    criado:'15/05/2026',
-    corpo:'Olá! Após sua consulta de oftalmologia hoje, você tem {{1}}% de desconto em exame de vista na ótica parceira, válido até {{2}}. Aproveite também os benefícios do Cartão de Todos.',
-    variaveis:['Desconto (%)','Válido até']
-  },
-  {
-    id:2, nome:'oferta_nutricionista', display:'Oferta Nutricionista',
-    especialidade:'Nutricionista', categoria:'marketing',
-    status:'aprovado', ativo:true,
-    disparos:540, leitura:51, custo:167.40,
-    criado:'15/05/2026',
-    corpo:'Olá! Após sua consulta de nutrição hoje, separamos {{1}}% de desconto em exames laboratoriais complementares, válido até {{2}}. Confira também nosso material educativo sobre saúde metabólica.',
-    variaveis:['Desconto (%)','Válido até']
-  },
-  {
-    id:3, nome:'oferta_oftalmologia_surpresa', display:'Oferta Oftalmologia Surpresa',
-    especialidade:'Oftalmologia', categoria:'marketing',
-    status:'pendente', ativo:false,
-    disparos:0, leitura:0, custo:0,
-    criado:'26/06/2026',
-    corpo:'Posso te contar um segredo? Ei {{1}}, Enquanto você espera, vou te contar uma coisa rapidinho 👀 Você ganhou {{2}}% de desconto numa lente ou armação na nossa ótica parceira.',
-    variaveis:['Nome','Desconto (%)','Válido até']
-  },
-  {
-    id:4, nome:'oferta_nutricionista_surpresa', display:'Oferta Nutricionista Surpresa',
-    especialidade:'Nutricionista', categoria:'marketing',
-    status:'pendente', ativo:false,
-    disparos:0, leitura:0, custo:0,
-    criado:'26/06/2026',
-    corpo:'{{1}}, já que você está aqui cuidando da sua alimentação, deixa eu te contar uma coisa 🤫 Você ganhou {{2}}% de desconto nos seus exames complementares.',
-    variaveis:['Nome','Desconto (%)','Válido até']
-  },
-  {
-    id:5, nome:'info_ginecologia_exames', display:'Info Ginecologia Exames',
-    especialidade:'Ginecologia', categoria:'marketing',
-    status:'pendente', ativo:false,
-    disparos:0, leitura:0, custo:0,
-    criado:'26/06/2026',
-    corpo:'{{1}}, aproveitando que você já está na clínica hoje: temos {{2}} disponível, sem precisar marcar outra visita.',
-    variaveis:['Nome','Exame disponível','Quando']
-  },
-];
+const SUPABASE_URL = 'https://owvwtcnetzzdsjsndmwd.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_BVC7UDZrDMiaNLuk8EXJTQ_az6SZh2i';
 
+async function sbFetch(path, opts = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...opts,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...(opts.headers || {})
+    }
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const text = await res.text();
+  return text ? JSON.parse(text) : [];
+}
+
+let templates = [];
 let filtroAtual = 'todos';
+
+async function carregarTemplates() {
+  const container = document.getElementById('tbodyTemplates');
+  try {
+    // Busca templates_especialidade + ofertas_config em paralelo
+    const [regras, ofertas, logs] = await Promise.all([
+      sbFetch('templates_especialidade?clinic_id=eq.amor_saude&order=criado_em.desc'),
+      sbFetch('ofertas_config?select=template_nome,ativo,status_meta,inclui_nome,variaveis'),
+      sbFetch('disparo_logs?clinic_id=eq.amor_saude&select=template_nome,status')
+    ]);
+
+    // Monta mapa de ofertas
+    const ofertasMap = {};
+    ofertas.forEach(o => ofertasMap[o.template_nome] = o);
+
+    // Monta mapa de métricas por template
+    const metricas = {};
+    logs.forEach(l => {
+      if (!metricas[l.template_nome]) metricas[l.template_nome] = { enviado: 0, falhou: 0 };
+      if (l.status === 'enviado') metricas[l.template_nome].enviado++;
+      if (l.status === 'falhou') metricas[l.template_nome].falhou++;
+    });
+
+    // Monta array final
+    templates = regras.map(r => {
+      const oferta = ofertasMap[r.template_nome] || {};
+      const met = metricas[r.template_nome] || { enviado: 0, falhou: 0 };
+      const display = r.template_nome.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      const criado = new Date(r.criado_em).toLocaleDateString('pt-BR');
+      return {
+        id: r.id,
+        nome: r.template_nome,
+        display,
+        especialidade: r.especialidade.charAt(0).toUpperCase() + r.especialidade.slice(1),
+        categoria: 'marketing',
+        status: oferta.status_meta || 'pendente',
+        ativo: r.ativo,
+        disparos: met.enviado,
+        falhou: met.falhou,
+        leitura: 0, // virá da API da Meta futuramente
+        custo: (met.enviado * 0.31).toFixed(2),
+        criado,
+        corpo: (oferta.variaveis || []).map(v => v.label).join(', ') || '—',
+        variaveis: (oferta.variaveis || []).map(v => v.label)
+      };
+    });
+
+    // Atualiza métricas do topo
+    const aprovados = templates.filter(t => t.status === 'aprovado').length;
+    const pendentes = templates.filter(t => t.status === 'pendente').length;
+    const totalDisparos = templates.reduce((a, t) => a + t.disparos, 0);
+    const custoTotal = templates.reduce((a, t) => a + parseFloat(t.custo), 0);
+
+    document.querySelector('.metrics').innerHTML = `
+      <div class="metric">
+        <p class="ml">Templates cadastrados</p>
+        <p class="mv">${templates.length}</p>
+        <p class="msub">${aprovados} aprovados · ${pendentes} pendentes</p>
+      </div>
+      <div class="metric">
+        <p class="ml">Disparos este mês</p>
+        <p class="mv">${totalDisparos > 0 ? totalDisparos.toLocaleString('pt-BR') : '—'}</p>
+        <p class="msub">${totalDisparos > 0 ? 'via check-in' : 'aguardando disparos'}</p>
+      </div>
+      <div class="metric">
+        <p class="ml">Taxa de leitura média</p>
+        <p class="mv">—</p>
+        <p class="msub">via API Meta em breve</p>
+      </div>
+      <div class="metric hi">
+        <p class="ml">Custo estimado</p>
+        <p class="mv">R$ ${custoTotal > 0 ? custoTotal.toFixed(2).replace('.', ',') : '0'}</p>
+        <p class="msub">Junho 2026</p>
+      </div>
+    `;
+
+    renderTabela();
+
+  } catch (e) {
+    container.innerHTML = `<tr><td colspan="7" style="padding:24px;color:#A32D2D;font-size:13px;">Erro ao carregar: ${e.message}</td></tr>`;
+  }
+}
 
 function statusBadge(s){
   if(s==='aprovado') return `<span class="badge ok"><span class="dot-status" style="background:#085041;"></span> Aprovado</span>`;
@@ -387,8 +441,14 @@ function renderTabela(){
     if(filtroAtual==='utilidade') return t.categoria==='utilidade';
     return true;
   });
+
+  if(lista.length === 0){
+    tbody.innerHTML = `<tr><td colspan="7" style="padding:24px;text-align:center;color:var(--ink-soft);font-size:13px;">Nenhum template encontrado.</td></tr>`;
+    return;
+  }
+
   tbody.innerHTML = lista.map(t => `
-    <tr style="cursor:pointer;" onclick="abrirDrawer(${t.id})">
+    <tr style="cursor:pointer;" onclick="abrirDrawer('${t.id}')">
       <td style="padding-left:22px;">
         <div class="tpl-name">${t.display}</div>
         <div class="tpl-mono">${t.nome}</div>
@@ -399,13 +459,11 @@ function renderTabela(){
         <div class="num">${t.disparos > 0 ? t.disparos.toLocaleString('pt-BR') : '—'}</div>
         ${t.disparos > 0 ? `<div class="mini-bar"><div class="mini-bar-fill" style="width:${Math.min(100,t.disparos/7)}%"></div></div>` : ''}
       </td>
-      <td>
-        <div class="num">${t.leitura > 0 ? t.leitura+'%' : '—'}</div>
-      </td>
+      <td><div class="num">${t.leitura > 0 ? t.leitura+'%' : '—'}</div></td>
       <td style="font-size:12.5px;color:var(--ink-soft);">${t.criado}</td>
       <td>
         ${t.ativo ? '<span class="badge ativo">● ativo</span>' : ''}
-        <button class="action-btn" onclick="event.stopPropagation();abrirDrawer(${t.id})" title="Ver detalhes">→</button>
+        <button class="action-btn" onclick="event.stopPropagation();abrirDrawer('${t.id}')" title="Ver detalhes">→</button>
       </td>
     </tr>
   `).join('');
@@ -513,7 +571,47 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   window.location.href = 'index.html';
 });
 
-renderTabela();
+function abrirDrawer(id){
+  const t = templates.find(x => x.id===id);
+  if(!t) return;
+  const corpoExemplo = t.variaveis.length > 0
+    ? `Variáveis: ${t.variaveis.join(', ')}`
+    : 'Sem variáveis cadastradas';
+
+  document.getElementById('drawerContent').innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+      ${statusBadge(t.status)}
+      ${t.ativo ? '<span class="badge ativo">● ativo agora</span>' : ''}
+    </div>
+    <h2 style="margin:8px 0 2px;">${t.display}</h2>
+    <div class="tpl-mono" style="margin-bottom:4px;">${t.nome}</div>
+
+    <div class="drawer-section">
+      <h3>Informações</h3>
+      <div class="kv"><span class="k">Especialidade</span><span class="v">${t.especialidade}</span></div>
+      <div class="kv"><span class="k">Categoria</span><span class="v">Marketing</span></div>
+      <div class="kv"><span class="k">Criado em</span><span class="v">${t.criado}</span></div>
+      <div class="kv"><span class="k">Variáveis</span><span class="v">${t.variaveis.length > 0 ? t.variaveis.join(', ') : '—'}</span></div>
+    </div>
+
+    <div class="drawer-section">
+      <h3>Desempenho · Junho 2026</h3>
+      <div class="kv"><span class="k">Disparos enviados</span><span class="v">${t.disparos > 0 ? t.disparos : '—'}</span></div>
+      <div class="kv"><span class="k">Falhas</span><span class="v">${t.falhou > 0 ? t.falhou : '—'}</span></div>
+      <div class="kv"><span class="k">Taxa de leitura</span><span class="v">— (via Meta)</span></div>
+      <div class="kv"><span class="k">Custo estimado</span><span class="v">${parseFloat(t.custo) > 0 ? 'R$ '+t.custo.replace('.',',') : '—'}</span></div>
+    </div>
+
+    <div class="drawer-section">
+      <div style="display:flex;gap:8px;">
+        <button class="btn-ghost" style="flex:1;" onclick="fecharDrawer()">Fechar</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('drawer').classList.add('open');
+}
+
+carregarTemplates();
 </script>
 </body>
 </html>
