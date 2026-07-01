@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Templates · Amor Saúde</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal:#2BAFBE;--teal-deep:#1C7E8C;--teal-ink:#0F4A52;
+    --coral:#E2483C;--ink:#1B2624;--ink-soft:#5C6B67;
+    --paper:#FBFAF7;--mist:#EEF5F4;--line:#DCE3E1;
+    --ok-bg:#E1F5EE;--ok-tx:#085041;
+    --amber-bg:#FCF3DC;--amber-tx:#8A6300;
+    --red-bg:#FCEBEB;--red-tx:#A32D2D;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 0 64px;}
+
+  /* HEADER */
+  .header{background:#fff;border-bottom:1px solid var(--line);padding:16px 32px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:32px;}
+  .header .logo{height:30px;width:auto;}
+  .header .divider{width:1px;height:28px;background:var(--line);}
+  .header .titles p{font-size:11.5px;color:var(--ink-soft);margin:0;font-weight:500;letter-spacing:.04em;text-transform:uppercase;}
+  .header .titles h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:700;margin:0;color:var(--ink);}
+  .header .spacer{flex:1;}
+  .btn-primary{background:var(--teal-deep);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;}
+  .btn-primary:hover{background:var(--teal-ink);}
+  .logout{background:none;border:none;color:var(--ink-soft);font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;}
+
+  /* SECTION */
+  .section{padding:0 32px;}
+
+  /* MÉTRICAS */
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+  .metric{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;}
+  .metric.hi{background:var(--teal-deep);border-color:var(--teal-deep);}
+  .metric .ml{font-size:12px;color:var(--ink-soft);margin:0 0 6px;}
+  .metric.hi .ml{color:#cfe8ec;}
+  .metric .mv{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:700;margin:0;color:var(--ink);}
+  .metric.hi .mv{color:#fff;}
+  .metric .msub{font-size:11.5px;color:var(--ink-soft);margin:4px 0 0;}
+  .metric.hi .msub{color:#9ed4db;}
+
+  /* CARD */
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:20px;}
+  .card-title{font-size:13px;color:var(--ink-soft);font-weight:500;margin:0 0 16px;}
+
+  /* GRÁFICO SVG */
+  .chart-wrap{width:100%;overflow:hidden;}
+
+  /* FILTROS */
+  .filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .filter-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:500;cursor:pointer;color:var(--ink-soft);font-family:'Inter',sans-serif;}
+  .filter-btn.active{background:var(--teal-deep);color:#fff;border-color:var(--teal-deep);}
+
+  /* TABELA DE TEMPLATES */
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{text-align:left;font-size:11.5px;color:var(--ink-soft);font-weight:500;padding:0 12px 10px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  tbody td{padding:14px 12px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:var(--paper);}
+  .tpl-name{font-weight:500;color:var(--ink);margin:0 0 2px;}
+  .tpl-mono{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);}
+  .badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+  .badge.ok{background:var(--ok-bg);color:var(--ok-tx);}
+  .badge.pend{background:var(--amber-bg);color:var(--amber-tx);}
+  .badge.rej{background:var(--red-bg);color:var(--red-tx);}
+  .badge.mkt{background:#FFF0F0;color:#C0392B;}
+  .badge.util{background:var(--mist);color:var(--teal-ink);}
+  .badge.ativo{background:var(--teal-deep);color:#fff;}
+  .dot-status{width:7px;height:7px;border-radius:50%;display:inline-block;}
+  .num{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--ink);}
+  .esp-pill{font-size:11px;font-weight:500;padding:2px 8px;border-radius:6px;background:var(--mist);color:var(--teal-ink);}
+  .action-btn{border:none;background:none;cursor:pointer;color:var(--ink-soft);padding:4px 6px;border-radius:6px;font-size:12px;}
+  .action-btn:hover{background:var(--mist);color:var(--teal-ink);}
+
+  /* MINI BAR */
+  .mini-bar{width:80px;height:6px;border-radius:4px;background:var(--line);overflow:hidden;display:inline-block;}
+  .mini-bar-fill{height:6px;border-radius:4px;background:var(--teal);}
+
+  /* MODAL */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:#fff;border-radius:16px;padding:28px;width:90%;max-width:520px;max-height:90vh;overflow-y:auto;}
+  .modal h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:700;margin:0 0 6px;}
+  .modal p.sub{font-size:13px;color:var(--ink-soft);margin:0 0 22px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;font-weight:500;margin-bottom:6px;color:var(--ink);}
+  .field input,.field select,.field textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px;font-family:'Inter',sans-serif;color:var(--ink);background:var(--paper);resize:vertical;}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--teal-deep);box-shadow:0 0 0 3px rgba(43,175,190,.12);}
+  .field .hint{font-size:11.5px;color:var(--ink-soft);margin:5px 0 0;}
+  .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:16px;border-top:1px solid var(--line);}
+  .btn-ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .variaveis-preview{background:var(--mist);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.6;margin-top:8px;min-height:48px;color:var(--ink);}
+
+  /* DETALHE LATERAL (drawer) */
+  .drawer{position:fixed;top:0;right:-480px;width:460px;height:100vh;background:#fff;border-left:1px solid var(--line);z-index:150;transition:right .25s;overflow-y:auto;padding:28px;}
+  .drawer.open{right:0;}
+  .drawer h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;margin:0 0 4px;}
+  .drawer .close-btn{position:absolute;top:20px;right:20px;background:none;border:none;cursor:pointer;font-size:20px;color:var(--ink-soft);}
+  .drawer-section{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);}
+  .drawer-section h3{font-size:12px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin:0 0 12px;}
+  .kv{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:13px;}
+  .kv .k{color:var(--ink-soft);}
+  .kv .v{font-weight:500;text-align:right;}
+  .preview-bubble{background:#EEF5F4;border-radius:12px 12px 12px 2px;padding:12px 14px;font-size:13px;line-height:1.6;color:var(--ink);margin-top:8px;}
+
+  @media(max-width:680px){
+    .metrics{grid-template-columns:repeat(2,1fr);}
+    .section{padding:0 16px;}
+    .header{padding:14px 16px;}
+    thead th:nth-child(4),tbody td:nth-child(4),
+    thead th:nth-child(5),tbody td:nth-child(5){display:none;}
+    .drawer{width:100%;right:-100%;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <img src="Assets/logo_amor_saude.png" alt="Amor Saúde" class="logo" />
+    <div class="divider"></div>
+    <div class="titles">
+      <p>Painel da gestora</p>
+      <h1>Templates WhatsApp</h1>
+    </div>
+    <span class="spacer"></span>
+    <button class="btn-primary" onclick="abrirModalCriar()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
+      Novo template
+    </button>
+    <button class="logout" id="logoutBtn">Sair</button>
+  </div>
+
+  <div class="section">
+
+    <!-- MÉTRICAS -->
+    <div class="metrics">
+      <div class="metric">
+        <p class="ml">Templates cadastrados</p>
+        <p class="mv">5</p>
+        <p class="msub">2 aprovados · 3 pendentes</p>
+      </div>
+      <div class="metric">
+        <p class="ml">Disparos este mês</p>
+        <p class="mv">1.842</p>
+        <p class="msub">↑ 12% vs mês anterior</p>
+      </div>
+      <div class="metric">
+        <p class="ml">Taxa de leitura média</p>
+        <p class="mv">54%</p>
+        <p class="msub">Meta: acima de 40%</p>
+      </div>
+      <div class="metric hi">
+        <p class="ml">Custo estimado</p>
+        <p class="mv">R$ 262</p>
+        <p class="msub">Junho 2026</p>
+      </div>
+    </div>
+
+    <!-- GRÁFICO DE LINHA -->
+    <div class="card">
+      <p class="card-title">Disparos diários por template · Junho 2026</p>
+      <div class="chart-wrap">
+        <svg viewBox="0 0 860 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2BAFBE" stop-opacity=".18"/>
+              <stop offset="100%" stop-color="#2BAFBE" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#E2483C" stop-opacity=".12"/>
+              <stop offset="100%" stop-color="#E2483C" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- Grid lines -->
+          <line x1="40" y1="20" x2="850" y2="20" stroke="#DCE3E1" stroke-width="1"/>
+          <line x1="40" y1="55" x2="850" y2="55" stroke="#DCE3E1" stroke-width="1"/>
+          <line x1="40" y1="90" x2="850" y2="90" stroke="#DCE3E1" stroke-width="1"/>
+          <line x1="40" y1="125" x2="850" y2="125" stroke="#DCE3E1" stroke-width="1"/>
+          <line x1="40" y1="160" x2="850" y2="160" stroke="#DCE3E1" stroke-width="1"/>
+          <!-- Y labels -->
+          <text x="32" y="23" font-size="10" fill="#5C6B67" text-anchor="end">120</text>
+          <text x="32" y="58" font-size="10" fill="#5C6B67" text-anchor="end">90</text>
+          <text x="32" y="93" font-size="10" fill="#5C6B67" text-anchor="end">60</text>
+          <text x="32" y="128" font-size="10" fill="#5C6B67" text-anchor="end">30</text>
+          <text x="32" y="163" font-size="10" fill="#5C6B67" text-anchor="end">0</text>
+          <!-- X labels -->
+          <text x="40"  y="175" font-size="10" fill="#5C6B67" text-anchor="middle">01</text>
+          <text x="120" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">05</text>
+          <text x="214" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">09</text>
+          <text x="307" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">13</text>
+          <text x="400" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">16</text>
+          <text x="507" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">20</text>
+          <text x="614" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">24</text>
+          <text x="720" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">27</text>
+          <text x="850" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">30</text>
+          <!-- Linha oftalmologia (teal) -->
+          <path d="M40,110 L80,95 L120,80 L160,70 L200,85 L240,60 L280,75 L320,55 L360,65 L400,45 L440,60 L480,50 L520,40 L560,55 L600,45 L640,60 L680,50 L720,65 L760,55 L800,45 L850,55" fill="none" stroke="#2BAFBE" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="M40,110 L80,95 L120,80 L160,70 L200,85 L240,60 L280,75 L320,55 L360,65 L400,45 L440,60 L480,50 L520,40 L560,55 L600,45 L640,60 L680,50 L720,65 L760,55 L800,45 L850,55 L850,160 L40,160 Z" fill="url(#g1)"/>
+          <!-- Linha nutricionista (coral) -->
+          <path d="M40,130 L80,120 L120,115 L160,125 L200,110 L240,120 L280,105 L320,115 L360,100 L400,110 L440,95 L480,105 L520,90 L560,100 L600,85 L640,95 L680,105 L720,90 L760,100 L800,85 L850,95" fill="none" stroke="#E2483C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="0"/>
+          <path d="M40,130 L80,120 L120,115 L160,125 L200,110 L240,120 L280,105 L320,115 L360,100 L400,110 L440,95 L480,105 L520,90 L560,100 L600,85 L640,95 L680,105 L720,90 L760,100 L800,85 L850,95 L850,160 L40,160 Z" fill="url(#g2)"/>
+          <!-- Tooltip simulado no dia 16 -->
+          <line x1="400" y1="20" x2="400" y2="160" stroke="#DCE3E1" stroke-width="1" stroke-dasharray="4,3"/>
+          <circle cx="400" cy="45" r="4" fill="#2BAFBE" stroke="#fff" stroke-width="2"/>
+          <circle cx="400" cy="110" r="4" fill="#E2483C" stroke="#fff" stroke-width="2"/>
+          <rect x="410" y="28" width="130" height="52" rx="8" fill="#1B2624" opacity=".88"/>
+          <text x="422" y="46" font-size="10" fill="#fff" font-weight="600">16/06</text>
+          <circle cx="422" cy="57" r="4" fill="#2BAFBE"/>
+          <text x="430" y="60" font-size="10" fill="#ccc">Oftalmologia</text>
+          <text x="520" y="60" font-size="10" fill="#fff" font-weight="600" text-anchor="end">68</text>
+          <circle cx="422" cy="70" r="4" fill="#E2483C"/>
+          <text x="430" y="73" font-size="10" fill="#ccc">Nutricionista</text>
+          <text x="520" y="73" font-size="10" fill="#fff" font-weight="600" text-anchor="end">42</text>
+        </svg>
+      </div>
+      <!-- Legenda -->
+      <div style="display:flex;gap:18px;margin-top:8px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft);">
+          <div style="width:16px;height:3px;background:#2BAFBE;border-radius:2px;"></div> Oftalmologia
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft);">
+          <div style="width:16px;height:3px;background:#E2483C;border-radius:2px;"></div> Nutricionista
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filters">
+      <button class="filter-btn active" onclick="filtrar(this,'todos')">Todos</button>
+      <button class="filter-btn" onclick="filtrar(this,'aprovado')">✓ Aprovados</button>
+      <button class="filter-btn" onclick="filtrar(this,'pendente')">⏳ Pendentes</button>
+      <button class="filter-btn" onclick="filtrar(this,'marketing')">Marketing</button>
+      <button class="filter-btn" onclick="filtrar(this,'utilidade')">Utilidade</button>
+    </div>
+
+    <!-- TABELA -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table id="tabelaTemplates">
+        <thead>
+          <tr>
+            <th style="padding-left:22px;">Template</th>
+            <th>Especialidade</th>
+            <th>Status Meta</th>
+            <th>Disparos</th>
+            <th>Leitura</th>
+            <th>Criado em</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tbodyTemplates"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL CRIAR TEMPLATE -->
+<div class="modal-overlay" id="modalCriar">
+  <div class="modal">
+    <h2>Novo template</h2>
+    <p class="sub">Preencha os dados e envie para aprovação da Meta. Após aprovado, vincule a uma especialidade.</p>
+
+    <div class="field">
+      <label>Nome do template <span style="color:var(--ink-soft);font-weight:400;">(sem espaços, só letras e _)</span></label>
+      <input type="text" id="tplNome" placeholder="ex: oferta_odontologia_limpeza" oninput="atualizarPreview()"/>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="field">
+        <label>Categoria</label>
+        <select id="tplCategoria">
+          <option value="marketing">Marketing</option>
+          <option value="utilidade">Utilidade</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Especialidade</label>
+        <select id="tplEspecialidade">
+          <option value="oftalmologia">Oftalmologia</option>
+          <option value="nutricionista">Nutricionista</option>
+          <option value="ginecologia">Ginecologia</option>
+          <option value="odontologia">Odontologia</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Corpo da mensagem</label>
+      <textarea id="tplCorpo" rows="4" placeholder="Use {{1}}, {{2}}, {{3}} para variáveis. Ex: Olá {{1}}, você ganhou {{2}}% de desconto!" oninput="atualizarPreview()"></textarea>
+      <p class="hint">{{1}} = nome do paciente (sempre), {{2}} em diante = variáveis da oferta</p>
+    </div>
+
+    <div class="field">
+      <label>Preview da mensagem</label>
+      <div class="variaveis-preview" id="previewTexto" style="color:var(--ink-soft);font-style:italic;">O preview aparece aqui conforme você digita...</div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="fecharModalCriar()">Cancelar</button>
+      <button class="btn-primary" onclick="submeterTemplate()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Enviar para Meta
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DRAWER DETALHE -->
+<div class="drawer" id="drawer">
+  <button class="close-btn" onclick="fecharDrawer()">✕</button>
+  <div id="drawerContent"></div>
+</div>
+
+<script>
+const templates = [
+  {
+    id:1, nome:'oferta_oftalmologia', display:'Oferta Oftalmologia',
+    especialidade:'Oftalmologia', categoria:'marketing',
+    status:'aprovado', ativo:true,
+    disparos:612, leitura:58, custo:189.72,
+    criado:'15/05/2026',
+    corpo:'Olá! Após sua consulta de oftalmologia hoje, você tem {{1}}% de desconto em exame de vista na ótica parceira, válido até {{2}}. Aproveite também os benefícios do Cartão de Todos.',
+    variaveis:['Desconto (%)','Válido até']
+  },
+  {
+    id:2, nome:'oferta_nutricionista', display:'Oferta Nutricionista',
+    especialidade:'Nutricionista', categoria:'marketing',
+    status:'aprovado', ativo:true,
+    disparos:540, leitura:51, custo:167.40,
+    criado:'15/05/2026',
+    corpo:'Olá! Após sua consulta de nutrição hoje, separamos {{1}}% de desconto em exames laboratoriais complementares, válido até {{2}}. Confira também nosso material educativo sobre saúde metabólica.',
+    variaveis:['Desconto (%)','Válido até']
+  },
+  {
+    id:3, nome:'oferta_oftalmologia_surpresa', display:'Oferta Oftalmologia Surpresa',
+    especialidade:'Oftalmologia', categoria:'marketing',
+    status:'pendente', ativo:false,
+    disparos:0, leitura:0, custo:0,
+    criado:'26/06/2026',
+    corpo:'Posso te contar um segredo? Ei {{1}}, Enquanto você espera, vou te contar uma coisa rapidinho 👀 Você ganhou {{2}}% de desconto numa lente ou armação na nossa ótica parceira.',
+    variaveis:['Nome','Desconto (%)','Válido até']
+  },
+  {
+    id:4, nome:'oferta_nutricionista_surpresa', display:'Oferta Nutricionista Surpresa',
+    especialidade:'Nutricionista', categoria:'marketing',
+    status:'pendente', ativo:false,
+    disparos:0, leitura:0, custo:0,
+    criado:'26/06/2026',
+    corpo:'{{1}}, já que você está aqui cuidando da sua alimentação, deixa eu te contar uma coisa 🤫 Você ganhou {{2}}% de desconto nos seus exames complementares.',
+    variaveis:['Nome','Desconto (%)','Válido até']
+  },
+  {
+    id:5, nome:'info_ginecologia_exames', display:'Info Ginecologia Exames',
+    especialidade:'Ginecologia', categoria:'marketing',
+    status:'pendente', ativo:false,
+    disparos:0, leitura:0, custo:0,
+    criado:'26/06/2026',
+    corpo:'{{1}}, aproveitando que você já está na clínica hoje: temos {{2}} disponível, sem precisar marcar outra visita.',
+    variaveis:['Nome','Exame disponível','Quando']
+  },
+];
+
+let filtroAtual = 'todos';
+
+function statusBadge(s){
+  if(s==='aprovado') return `<span class="badge ok"><span class="dot-status" style="background:#085041;"></span> Aprovado</span>`;
+  if(s==='pendente') return `<span class="badge pend"><span class="dot-status" style="background:#8A6300;"></span> Pendente</span>`;
+  return `<span class="badge rej"><span class="dot-status" style="background:#A32D2D;"></span> Rejeitado</span>`;
+}
+
+function renderTabela(){
+  const tbody = document.getElementById('tbodyTemplates');
+  const lista = templates.filter(t => {
+    if(filtroAtual==='aprovado') return t.status==='aprovado';
+    if(filtroAtual==='pendente') return t.status==='pendente';
+    if(filtroAtual==='marketing') return t.categoria==='marketing';
+    if(filtroAtual==='utilidade') return t.categoria==='utilidade';
+    return true;
+  });
+  tbody.innerHTML = lista.map(t => `
+    <tr style="cursor:pointer;" onclick="abrirDrawer(${t.id})">
+      <td style="padding-left:22px;">
+        <div class="tpl-name">${t.display}</div>
+        <div class="tpl-mono">${t.nome}</div>
+      </td>
+      <td><span class="esp-pill">${t.especialidade}</span></td>
+      <td>${statusBadge(t.status)}</td>
+      <td>
+        <div class="num">${t.disparos > 0 ? t.disparos.toLocaleString('pt-BR') : '—'}</div>
+        ${t.disparos > 0 ? `<div class="mini-bar"><div class="mini-bar-fill" style="width:${Math.min(100,t.disparos/7)}%"></div></div>` : ''}
+      </td>
+      <td>
+        <div class="num">${t.leitura > 0 ? t.leitura+'%' : '—'}</div>
+      </td>
+      <td style="font-size:12.5px;color:var(--ink-soft);">${t.criado}</td>
+      <td>
+        ${t.ativo ? '<span class="badge ativo">● ativo</span>' : ''}
+        <button class="action-btn" onclick="event.stopPropagation();abrirDrawer(${t.id})" title="Ver detalhes">→</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filtrar(btn, tipo){
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filtroAtual = tipo;
+  renderTabela();
+}
+
+function abrirDrawer(id){
+  const t = templates.find(x => x.id===id);
+  if(!t) return;
+  const corpoExemplo = t.corpo
+    .replace('{{1}}', '<strong>Gustavo</strong>')
+    .replace('{{2}}', t.variaveis[1] ? '<strong>15%</strong>' : '')
+    .replace('{{3}}', t.variaveis[2] ? '<strong>26/07</strong>' : '');
+
+  document.getElementById('drawerContent').innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+      ${statusBadge(t.status)}
+      ${t.ativo ? '<span class="badge ativo">● ativo agora</span>' : ''}
+    </div>
+    <h2 style="margin:8px 0 2px;">${t.display}</h2>
+    <div class="tpl-mono" style="margin-bottom:4px;">${t.nome}</div>
+
+    <div class="drawer-section">
+      <h3>Informações</h3>
+      <div class="kv"><span class="k">Especialidade</span><span class="v">${t.especialidade}</span></div>
+      <div class="kv"><span class="k">Categoria</span><span class="v">${t.categoria==='marketing' ? 'Marketing' : 'Utilidade'}</span></div>
+      <div class="kv"><span class="k">Criado em</span><span class="v">${t.criado}</span></div>
+      <div class="kv"><span class="k">Variáveis</span><span class="v">${t.variaveis.join(', ')}</span></div>
+    </div>
+
+    <div class="drawer-section">
+      <h3>Preview da mensagem</h3>
+      <div class="preview-bubble">${corpoExemplo}</div>
+    </div>
+
+    ${t.disparos > 0 ? `
+    <div class="drawer-section">
+      <h3>Desempenho · Junho 2026</h3>
+      <div class="kv"><span class="k">Total de disparos</span><span class="v">${t.disparos.toLocaleString('pt-BR')}</span></div>
+      <div class="kv"><span class="k">Taxa de leitura</span><span class="v">${t.leitura}%</span></div>
+      <div class="kv"><span class="k">Custo acumulado</span><span class="v">R$ ${t.custo.toFixed(2).replace('.',',')}</span></div>
+    </div>` : `
+    <div class="drawer-section">
+      <h3>Desempenho</h3>
+      <p style="font-size:13px;color:var(--ink-soft);">Nenhum disparo ainda — aguardando aprovação da Meta para ativar.</p>
+    </div>`}
+
+    <div class="drawer-section">
+      <div style="display:flex;gap:8px;">
+        ${!t.ativo && t.status==='aprovado' ? `<button class="btn-primary" style="flex:1;justify-content:center;" onclick="ativarTemplate(${t.id})">Ativar para ${t.especialidade}</button>` : ''}
+        <button class="btn-ghost" style="flex:1;" onclick="fecharDrawer()">Fechar</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('drawer').classList.add('open');
+}
+
+function fecharDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+}
+
+function ativarTemplate(id){
+  const t = templates.find(x=>x.id===id);
+  alert(`✓ Template "${t.display}" ativado para ${t.especialidade}.\n\nEm produção, isso atualizaria a tabela templates_especialidade no Supabase.`);
+  fecharDrawer();
+}
+
+function abrirModalCriar(){
+  document.getElementById('modalCriar').classList.add('open');
+}
+
+function fecharModalCriar(){
+  document.getElementById('modalCriar').classList.remove('open');
+  document.getElementById('tplNome').value='';
+  document.getElementById('tplCorpo').value='';
+  document.getElementById('previewTexto').innerHTML='<span style="color:var(--ink-soft);font-style:italic;">O preview aparece aqui conforme você digita...</span>';
+}
+
+function atualizarPreview(){
+  const corpo = document.getElementById('tplCorpo').value;
+  if(!corpo){ document.getElementById('previewTexto').innerHTML='<span style="color:var(--ink-soft);font-style:italic;">O preview aparece aqui conforme você digita...</span>'; return; }
+  const preview = corpo
+    .replace(/\{\{1\}\}/g,'<strong>Gustavo</strong>')
+    .replace(/\{\{2\}\}/g,'<strong>[var 2]</strong>')
+    .replace(/\{\{3\}\}/g,'<strong>[var 3]</strong>');
+  document.getElementById('previewTexto').innerHTML = preview;
+}
+
+function submeterTemplate(){
+  const nome = document.getElementById('tplNome').value.trim();
+  const corpo = document.getElementById('tplCorpo').value.trim();
+  if(!nome || !corpo){ alert('Preencha o nome e o corpo da mensagem.'); return; }
+  alert(`✓ Template "${nome}" enviado para análise da Meta.\n\nEm produção, isso chamaria a API da Meta para criar o template e salvaria no banco com status "pendente".`);
+  fecharModalCriar();
+}
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  sessionStorage.removeItem('amorSaudeSession');
+  window.location.href = 'index.html';
+});
+
+renderTabela();
+</script>
+</body>
+</html>
