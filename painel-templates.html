@@ -274,13 +274,18 @@
       </div>
     </div>
 
-    <!-- FILTROS -->
+    <!-- FILTROS STATUS -->
     <div class="filters">
       <button class="filter-btn active" onclick="filtrar(this,'todos')">Todos</button>
       <button class="filter-btn" onclick="filtrar(this,'aprovado')">✓ Aprovados</button>
       <button class="filter-btn" onclick="filtrar(this,'pendente')">⏳ Pendentes</button>
       <button class="filter-btn" onclick="filtrar(this,'marketing')">Marketing</button>
       <button class="filter-btn" onclick="filtrar(this,'utilidade')">Utilidade</button>
+    </div>
+
+    <!-- FILTROS ESPECIALIDADE (populado dinamicamente) -->
+    <div class="filters" id="filtrosEspecialidade" style="margin-top:-8px;">
+      <button class="filter-btn active" onclick="filtrarEsp(this,'todas')">Todas especialidades</button>
     </div>
 
     <!-- TABELA -->
@@ -492,22 +497,27 @@ async function sbFetch(path, opts = {}) {
 
 let templates = [];
 let filtroAtual = 'todos';
+let filtroEsp = 'todas';
 
 async function carregarTemplates() {
   const container = document.getElementById('tbodyTemplates');
   try {
-    // Busca templates_especialidade + ofertas_config em paralelo
-    const [regras, ofertas, logs] = await Promise.all([
-      sbFetch('templates_especialidade?clinic_id=eq.amor_saude&order=criado_em.desc'),
-      sbFetch('ofertas_config?select=template_nome,ativo,status_meta,inclui_nome,variaveis'),
+    // Fonte principal: ofertas_config (todos os templates sincronizados da Meta)
+    // Lookup: templates_especialidade (especialidade vinculada + ativo/inativo)
+    const [ofertas, regras, logs] = await Promise.all([
+      sbFetch('ofertas_config?select=template_nome,status_meta,inclui_nome,variaveis&order=template_nome.asc'),
+      sbFetch('templates_especialidade?clinic_id=eq.amor_saude'),
       sbFetch('disparo_logs?clinic_id=eq.amor_saude&select=template_nome,status')
     ]);
 
-    // Monta mapa de ofertas
-    const ofertasMap = {};
-    ofertas.forEach(o => ofertasMap[o.template_nome] = o);
+    // Mapa de especialidade/ativo por template_nome
+    const regrasMap = {};
+    regras.forEach(r => {
+      if (!regrasMap[r.template_nome]) regrasMap[r.template_nome] = [];
+      regrasMap[r.template_nome].push({ especialidade: r.especialidade, ativo: r.ativo, id: r.id });
+    });
 
-    // Monta mapa de métricas por template
+    // Mapa de métricas por template
     const metricas = {};
     logs.forEach(l => {
       if (!metricas[l.template_nome]) metricas[l.template_nome] = { enviado: 0, falhou: 0 };
@@ -515,27 +525,29 @@ async function carregarTemplates() {
       if (l.status === 'falhou') metricas[l.template_nome].falhou++;
     });
 
-    // Monta array final
-    templates = regras.map(r => {
-      const oferta = ofertasMap[r.template_nome] || {};
-      const met = metricas[r.template_nome] || { enviado: 0, falhou: 0 };
-      const display = r.template_nome.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      const criado = new Date(r.criado_em).toLocaleDateString('pt-BR');
+    // Monta array final — todos os templates da ofertas_config
+    templates = ofertas.map(o => {
+      const vinculo = regrasMap[o.template_nome] || [];
+      const ativoItem = vinculo.find(v => v.ativo);
+      const primeiroVinculo = vinculo[0];
+      const met = metricas[o.template_nome] || { enviado: 0, falhou: 0 };
+      const display = o.template_nome.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      const variaveis = (() => { try { return JSON.parse(o.variaveis || '[]'); } catch { return o.variaveis || []; } })();
+
       return {
-        id: r.id,
-        nome: r.template_nome,
+        id: ativoItem?.id || primeiroVinculo?.id || o.template_nome,
+        nome: o.template_nome,
         display,
-        especialidade: r.especialidade.charAt(0).toUpperCase() + r.especialidade.slice(1),
+        especialidade: primeiroVinculo ? (primeiroVinculo.especialidade.charAt(0).toUpperCase() + primeiroVinculo.especialidade.slice(1)) : null,
+        especialidades: vinculo.map(v => v.especialidade),
         categoria: 'marketing',
-        status: oferta.status_meta || 'pendente',
-        ativo: r.ativo,
+        status: o.status_meta || 'pendente',
+        ativo: !!ativoItem,
         disparos: met.enviado,
         falhou: met.falhou,
-        leitura: 0, // virá da API da Meta futuramente
+        leitura: 0,
         custo: (met.enviado * 0.31).toFixed(2),
-        criado,
-        corpo: (oferta.variaveis || []).map(v => v.label).join(', ') || '—',
-        variaveis: (oferta.variaveis || []).map(v => v.label)
+        variaveis: variaveis.map(v => v.label || v)
       };
     });
 
@@ -568,6 +580,17 @@ async function carregarTemplates() {
       </div>
     `;
 
+    // Atualiza filtros de especialidade dinamicamente
+    const esps = [...new Set(templates.flatMap(t => t.especialidades))].filter(Boolean).sort();
+    const filtrosEspEl = document.getElementById('filtrosEspecialidade');
+    if (filtrosEspEl) {
+      filtrosEspEl.innerHTML = `
+        <button class="filter-btn ${filtroEsp === 'todas' ? 'active' : ''}" onclick="filtrarEsp(this,'todas')">Todas especialidades</button>
+        ${esps.map(e => `<button class="filter-btn ${filtroEsp === e ? 'active' : ''}" onclick="filtrarEsp(this,'${e}')">${e.charAt(0).toUpperCase()+e.slice(1)}</button>`).join('')}
+        <button class="filter-btn" onclick="filtrarEsp(this,'sem_vinculo')" style="${filtroEsp==='sem_vinculo'?'background:var(--teal-deep);color:#fff;border-color:var(--teal-deep)':''}">Sem especialidade</button>
+      `;
+    }
+
     renderTabela();
 
   } catch (e) {
@@ -581,13 +604,24 @@ function statusBadge(s){
   return `<span class="badge rej"><span class="dot-status" style="background:#A32D2D;"></span> Rejeitado</span>`;
 }
 
+function filtrarEsp(btn, esp) {
+  filtroEsp = esp;
+  document.querySelectorAll('#filtrosEspecialidade .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTabela();
+}
+
 function renderTabela(){
   const tbody = document.getElementById('tbodyTemplates');
   const lista = templates.filter(t => {
-    if(filtroAtual==='aprovado') return t.status==='aprovado';
-    if(filtroAtual==='pendente') return t.status==='pendente';
-    if(filtroAtual==='marketing') return t.categoria==='marketing';
-    if(filtroAtual==='utilidade') return t.categoria==='utilidade';
+    // Filtro de status/categoria
+    if(filtroAtual==='aprovado' && t.status!=='aprovado') return false;
+    if(filtroAtual==='pendente' && t.status!=='pendente') return false;
+    if(filtroAtual==='marketing' && t.categoria!=='marketing') return false;
+    if(filtroAtual==='utilidade' && t.categoria!=='utilidade') return false;
+    // Filtro de especialidade
+    if(filtroEsp==='sem_vinculo' && t.especialidades.length > 0) return false;
+    if(filtroEsp !== 'todas' && filtroEsp !== 'sem_vinculo' && !t.especialidades.includes(filtroEsp)) return false;
     return true;
   });
 
@@ -596,26 +630,34 @@ function renderTabela(){
     return;
   }
 
-  tbody.innerHTML = lista.map(t => `
-    <tr style="cursor:pointer;" onclick="abrirDrawer('${t.id}')">
-      <td style="padding-left:22px;">
-        <div class="tpl-name">${t.display}</div>
-        <div class="tpl-mono">${t.nome}</div>
-      </td>
-      <td><span class="esp-pill">${t.especialidade}</span></td>
-      <td>${statusBadge(t.status)}</td>
-      <td>
-        <div class="num">${t.disparos > 0 ? t.disparos.toLocaleString('pt-BR') : '—'}</div>
-        ${t.disparos > 0 ? `<div class="mini-bar"><div class="mini-bar-fill" style="width:${Math.min(100,t.disparos/7)}%"></div></div>` : ''}
-      </td>
-      <td><div class="num">${t.leitura > 0 ? t.leitura+'%' : '—'}</div></td>
-      <td style="font-size:12.5px;color:var(--ink-soft);">${t.criado}</td>
-      <td>
-        ${t.ativo ? '<span class="badge ativo">● ativo</span>' : ''}
-        <button class="action-btn" onclick="event.stopPropagation();abrirDrawer('${t.id}')" title="Ver detalhes">→</button>
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = lista.map(t => {
+    const espTag = t.especialidade
+      ? `<span class="esp-pill">${t.especialidade}</span>`
+      : `<span class="esp-pill" style="background:#FCF3DC;color:#8A6300;">Sem vínculo</span>`;
+
+    const ativoTag = t.ativo ? '<span class="badge ativo">● ativo</span>' : '';
+
+    return `
+      <tr style="cursor:pointer;" onclick="abrirDrawer('${t.id}')">
+        <td style="padding-left:22px;">
+          <div class="tpl-name">${t.display}</div>
+          <div class="tpl-mono">${t.nome}</div>
+        </td>
+        <td>${espTag}</td>
+        <td>${statusBadge(t.status)}</td>
+        <td>
+          <div class="num">${t.disparos > 0 ? t.disparos.toLocaleString('pt-BR') : '—'}</div>
+          ${t.disparos > 0 ? `<div class="mini-bar"><div class="mini-bar-fill" style="width:${Math.min(100,t.disparos/7)}%"></div></div>` : ''}
+        </td>
+        <td><div class="num">${t.leitura > 0 ? t.leitura+'%' : '—'}</div></td>
+        <td style="font-size:12.5px;color:var(--ink-soft);">—</td>
+        <td>
+          ${ativoTag}
+          <button class="action-btn" onclick="event.stopPropagation();abrirDrawer('${t.id}')" title="Ver detalhes">→</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 function filtrar(btn, tipo){
