@@ -206,72 +206,21 @@
       </div>
     </div>
 
-    <!-- GRÁFICO DE LINHA -->
+    <!-- GRÁFICO DE LINHA DINÂMICO -->
     <div class="card">
-      <p class="card-title">Disparos diários por template · Junho 2026</p>
-      <div class="chart-wrap">
-        <svg viewBox="0 0 860 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-          <defs>
-            <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#2BAFBE" stop-opacity=".18"/>
-              <stop offset="100%" stop-color="#2BAFBE" stop-opacity="0"/>
-            </linearGradient>
-            <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#E2483C" stop-opacity=".12"/>
-              <stop offset="100%" stop-color="#E2483C" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <!-- Grid lines -->
-          <line x1="40" y1="20" x2="850" y2="20" stroke="#DCE3E1" stroke-width="1"/>
-          <line x1="40" y1="55" x2="850" y2="55" stroke="#DCE3E1" stroke-width="1"/>
-          <line x1="40" y1="90" x2="850" y2="90" stroke="#DCE3E1" stroke-width="1"/>
-          <line x1="40" y1="125" x2="850" y2="125" stroke="#DCE3E1" stroke-width="1"/>
-          <line x1="40" y1="160" x2="850" y2="160" stroke="#DCE3E1" stroke-width="1"/>
-          <!-- Y labels -->
-          <text x="32" y="23" font-size="10" fill="#5C6B67" text-anchor="end">120</text>
-          <text x="32" y="58" font-size="10" fill="#5C6B67" text-anchor="end">90</text>
-          <text x="32" y="93" font-size="10" fill="#5C6B67" text-anchor="end">60</text>
-          <text x="32" y="128" font-size="10" fill="#5C6B67" text-anchor="end">30</text>
-          <text x="32" y="163" font-size="10" fill="#5C6B67" text-anchor="end">0</text>
-          <!-- X labels -->
-          <text x="40"  y="175" font-size="10" fill="#5C6B67" text-anchor="middle">01</text>
-          <text x="120" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">05</text>
-          <text x="214" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">09</text>
-          <text x="307" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">13</text>
-          <text x="400" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">16</text>
-          <text x="507" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">20</text>
-          <text x="614" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">24</text>
-          <text x="720" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">27</text>
-          <text x="850" y="175" font-size="10" fill="#5C6B67" text-anchor="middle">30</text>
-          <!-- Linha oftalmologia (teal) -->
-          <path d="M40,110 L80,95 L120,80 L160,70 L200,85 L240,60 L280,75 L320,55 L360,65 L400,45 L440,60 L480,50 L520,40 L560,55 L600,45 L640,60 L680,50 L720,65 L760,55 L800,45 L850,55" fill="none" stroke="#2BAFBE" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-          <path d="M40,110 L80,95 L120,80 L160,70 L200,85 L240,60 L280,75 L320,55 L360,65 L400,45 L440,60 L480,50 L520,40 L560,55 L600,45 L640,60 L680,50 L720,65 L760,55 L800,45 L850,55 L850,160 L40,160 Z" fill="url(#g1)"/>
-          <!-- Linha nutricionista (coral) -->
-          <path d="M40,130 L80,120 L120,115 L160,125 L200,110 L240,120 L280,105 L320,115 L360,100 L400,110 L440,95 L480,105 L520,90 L560,100 L600,85 L640,95 L680,105 L720,90 L760,100 L800,85 L850,95" fill="none" stroke="#E2483C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="0"/>
-          <path d="M40,130 L80,120 L120,115 L160,125 L200,110 L240,120 L280,105 L320,115 L360,100 L400,110 L440,95 L480,105 L520,90 L560,100 L600,85 L640,95 L680,105 L720,90 L760,100 L800,85 L850,95 L850,160 L40,160 Z" fill="url(#g2)"/>
-          <!-- Tooltip simulado no dia 16 -->
-          <line x1="400" y1="20" x2="400" y2="160" stroke="#DCE3E1" stroke-width="1" stroke-dasharray="4,3"/>
-          <circle cx="400" cy="45" r="4" fill="#2BAFBE" stroke="#fff" stroke-width="2"/>
-          <circle cx="400" cy="110" r="4" fill="#E2483C" stroke="#fff" stroke-width="2"/>
-          <rect x="410" y="28" width="130" height="52" rx="8" fill="#1B2624" opacity=".88"/>
-          <text x="422" y="46" font-size="10" fill="#fff" font-weight="600">16/06</text>
-          <circle cx="422" cy="57" r="4" fill="#2BAFBE"/>
-          <text x="430" y="60" font-size="10" fill="#ccc">Oftalmologia</text>
-          <text x="520" y="60" font-size="10" fill="#fff" font-weight="600" text-anchor="end">68</text>
-          <circle cx="422" cy="70" r="4" fill="#E2483C"/>
-          <text x="430" y="73" font-size="10" fill="#ccc">Nutricionista</text>
-          <text x="520" y="73" font-size="10" fill="#fff" font-weight="600" text-anchor="end">42</text>
-        </svg>
-      </div>
-      <!-- Legenda -->
-      <div style="display:flex;gap:18px;margin-top:8px;">
-        <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft);">
-          <div style="width:16px;height:3px;background:#2BAFBE;border-radius:2px;"></div> Oftalmologia
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft);">
-          <div style="width:16px;height:3px;background:#E2483C;border-radius:2px;"></div> Nutricionista
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+        <p class="card-title" style="margin:0;" id="chartTitulo">Disparos diários · últimos 30 dias</p>
+        <div style="display:flex;gap:6px;">
+          <button class="filter-btn" id="fp7"  onclick="setPeriodo(7,this)">7 dias</button>
+          <button class="filter-btn active" id="fp30" onclick="setPeriodo(30,this)">30 dias</button>
+          <button class="filter-btn" id="fp90" onclick="setPeriodo(90,this)">90 dias</button>
         </div>
       </div>
+      <div class="chart-wrap" style="position:relative;height:180px;">
+        <canvas id="chartCanvas" style="width:100%;height:180px;display:block;"></canvas>
+        <div id="chartTooltip" style="display:none;position:absolute;background:#1B2624;color:#fff;border-radius:8px;padding:8px 12px;font-size:12px;pointer-events:none;z-index:10;min-width:130px;line-height:1.6;"></div>
+      </div>
+      <div id="chartLegenda" style="display:flex;gap:18px;margin-top:10px;flex-wrap:wrap;"></div>
     </div>
 
     <!-- FILTROS STATUS -->
@@ -963,6 +912,15 @@ function abrirDrawer(id){
       <button class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="salvarVariaveis('${t.nome}')">
         Salvar variáveis
       </button>
+      <div style="margin-top:12px;">
+        <div style="font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Preview com valores atuais</div>
+        <div style="background:#ECE5DD;border-radius:10px;padding:10px;">
+          <div style="background:#fff;border-radius:10px 10px 10px 2px;padding:10px 12px;max-width:95%;box-shadow:0 1px 2px rgba(0,0,0,.1);font-size:12.5px;line-height:1.6;color:#111;" id="drawerPreviewBubble">
+            Preencha as variáveis para ver o preview.
+          </div>
+          <div style="font-size:10px;color:#999;text-align:right;margin-top:4px;">14:12 ✓✓</div>
+        </div>
+      </div>
     </div>` : ''}
 
     <!-- DESEMPENHO -->
@@ -978,6 +936,25 @@ function abrirDrawer(id){
       <button class="btn-ghost" style="width:100%;" onclick="fecharDrawer()">Fechar</button>
     </div>
   `;
+  // Atualiza preview em tempo real
+  setTimeout(() => {
+    const bubble = document.getElementById('drawerPreviewBubble');
+    const inputs = document.querySelectorAll('.var-input');
+    if(!bubble || !inputs.length) return;
+
+    function atualizarBubble(){
+      const vars = t.variaveis.map((v, i) => {
+        const inp = document.getElementById(`var_${i}`);
+        return { label: typeof v==='object'?v.label:v, valor: inp ? inp.value : (typeof v==='object'?v.valor:'') };
+      });
+      let preview = vars.map((v,i) => `<span style="color:#5C6B67;font-size:11px;">{{${i+1}}} ${v.label}:</span> <strong>${v.valor || '[não preenchido]'}</strong>`).join('<br>');
+      bubble.innerHTML = preview;
+    }
+
+    inputs.forEach(inp => inp.addEventListener('input', atualizarBubble));
+    atualizarBubble();
+  }, 100);
+
   document.getElementById('drawer').classList.add('open');
 }
 
@@ -1076,6 +1053,155 @@ async function salvarVariaveis(templateNome){
     alert('Erro ao salvar: ' + e.message);
   }
 }
+
+// ── GRÁFICO DINÂMICO ──────────────────────────────────
+const CORES_ESP = ['#2BAFBE','#E2483C','#8B5CF6','#F59E0B','#10B981','#EF4444'];
+let periodoAtual = 30;
+let dadosGrafico = {};
+
+function setPeriodo(dias, btn) {
+  periodoAtual = dias;
+  document.querySelectorAll('#fp7,#fp30,#fp90').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('chartTitulo').textContent = `Disparos diários · últimos ${dias} dias`;
+  renderGrafico();
+}
+
+async function carregarGrafico() {
+  try {
+    const agora = new Date();
+    const inicio = new Date(agora);
+    inicio.setDate(agora.getDate() - 90);
+    const logs = await sbFetch(`disparo_logs?clinic_id=eq.amor_saude&status=eq.enviado&criado_em=gte.${inicio.toISOString()}&select=especialidade,criado_em`);
+
+    dadosGrafico = {};
+    logs.forEach(l => {
+      const dia = l.criado_em.substring(0, 10);
+      if(!dadosGrafico[l.especialidade]) dadosGrafico[l.especialidade] = {};
+      dadosGrafico[l.especialidade][dia] = (dadosGrafico[l.especialidade][dia] || 0) + 1;
+    });
+
+    renderGrafico();
+  } catch(e) {
+    console.error('Erro gráfico:', e);
+  }
+}
+
+function renderGrafico() {
+  const canvas = document.getElementById('chartCanvas');
+  if(!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.clientWidth || 800;
+  const H = 180;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const hoje = new Date();
+  const dias = [];
+  for(let i = periodoAtual - 1; i >= 0; i--){
+    const d = new Date(hoje);
+    d.setDate(hoje.getDate() - i);
+    dias.push(d.toISOString().substring(0, 10));
+  }
+
+  const especialidades = Object.keys(dadosGrafico);
+  const PAD = { top: 10, right: 20, bottom: 30, left: 38 };
+  const cW = W - PAD.left - PAD.right;
+  const cH = H - PAD.top - PAD.bottom;
+
+  let maxVal = 1;
+  especialidades.forEach(esp => {
+    dias.forEach(d => { const v = dadosGrafico[esp][d] || 0; if(v > maxVal) maxVal = v; });
+  });
+  maxVal = Math.ceil(maxVal * 1.2) || 5;
+
+  ctx.strokeStyle = '#DCE3E1';
+  ctx.lineWidth = 1;
+  for(let i = 0; i <= 4; i++){
+    const y = PAD.top + (cH / 4) * i;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + cW, y); ctx.stroke();
+    ctx.fillStyle = '#5C6B67'; ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxVal * (1 - i/4)), PAD.left - 4, y + 4);
+  }
+
+  ctx.fillStyle = '#5C6B67'; ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'center';
+  const step = Math.max(1, Math.floor(dias.length / 7));
+  dias.forEach((d, i) => {
+    if(i % step === 0 || i === dias.length - 1){
+      const x = PAD.left + (dias.length > 1 ? (i / (dias.length - 1)) * cW : cW/2);
+      ctx.fillText(d.substring(8)+'/'+d.substring(5,7), x, H - 5);
+    }
+  });
+
+  especialidades.forEach((esp, ei) => {
+    const cor = CORES_ESP[ei % CORES_ESP.length];
+    const pts = dias.map((d, i) => ({
+      x: PAD.left + (dias.length > 1 ? (i / (dias.length - 1)) * cW : cW/2),
+      y: PAD.top + cH - ((dadosGrafico[esp][d] || 0) / maxVal) * cH
+    }));
+    ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+    pts.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.lineTo(pts[pts.length-1].x, PAD.top + cH);
+    ctx.lineTo(pts[0].x, PAD.top + cH);
+    ctx.closePath(); ctx.fillStyle = cor + '20'; ctx.fill();
+
+    ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
+    pts.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.strokeStyle = cor; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
+  });
+
+  document.getElementById('chartLegenda').innerHTML = especialidades.map((esp, ei) =>
+    `<div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft);">
+      <div style="width:16px;height:3px;background:${CORES_ESP[ei%CORES_ESP.length]};border-radius:2px;"></div>
+      ${esp.charAt(0).toUpperCase()+esp.slice(1)}</div>`
+  ).join('');
+
+  if(especialidades.length === 0){
+    ctx.fillStyle='#5C6B67'; ctx.font='13px Inter,sans-serif'; ctx.textAlign='center';
+    ctx.fillText('Nenhum disparo registrado ainda nesse período.', W/2, H/2);
+  }
+
+  canvas._dados = { dias, especialidades, PAD, cW, cH, maxVal };
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.getElementById('chartCanvas');
+  if(!canvas) return;
+  canvas.addEventListener('mousemove', e => {
+    if(!canvas._dados) return;
+    const { dias, especialidades, PAD, cW } = canvas._dados;
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const idx = Math.round((mouseX - PAD.left) / (dias.length > 1 ? cW/(dias.length-1) : cW));
+    const tooltip = document.getElementById('chartTooltip');
+    if(idx < 0 || idx >= dias.length){ tooltip.style.display='none'; return; }
+    const dia = dias[idx];
+    let html = `<div style="font-weight:600;margin-bottom:4px;">${dia.substring(8)}/${dia.substring(5,7)}</div>`;
+    especialidades.forEach((esp,ei) => {
+      const v = (dadosGrafico[esp]||{})[dia]||0;
+      html += `<div style="display:flex;align-items:center;gap:6px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:${CORES_ESP[ei%CORES_ESP.length]};"></div>
+        <span style="color:#ccc;">${esp.charAt(0).toUpperCase()+esp.slice(1)}</span>
+        <span style="margin-left:8px;font-weight:600;">${v}</span></div>`;
+    });
+    tooltip.innerHTML = html;
+    tooltip.style.display = 'block';
+    const tW = tooltip.offsetWidth;
+    let left = mouseX + 12;
+    if(left + tW > rect.width) left = mouseX - tW - 12;
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = '10px';
+  });
+  canvas.addEventListener('mouseleave', () => {
+    document.getElementById('chartTooltip').style.display = 'none';
+  });
+  // Inicia o gráfico
+  carregarGrafico();
+});
 
 carregarTemplates();
 </script>
