@@ -169,6 +169,10 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M11 6l-6 6 6 6" stroke="var(--ink-soft)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Voltar ao painel
     </a>
+    <button id="syncBtn" class="btn-primary" style="background:#fff;color:var(--teal-deep);border:1.5px solid var(--teal-deep);" onclick="sincronizarTemplates()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke="var(--teal-deep)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Sincronizar com Meta
+    </button>
     <button class="btn-primary" onclick="abrirModalCriar()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
       Novo template
@@ -467,6 +471,7 @@
 
 <script>
 const SUPABASE_URL = 'https://owvwtcnetzzdsjsndmwd.supabase.co';
+const SYNC_WEBHOOK = 'https://n8n.growuprastreamento.com.br/webhook/sync-templates';
 const SUPABASE_KEY = 'sb_publishable_BVC7UDZrDMiaNLuk8EXJTQ_az6SZh2i';
 
 async function sbFetch(path, opts = {}) {
@@ -681,7 +686,62 @@ function ativarTemplate(id){
   fecharDrawer();
 }
 
-// ── MODAL ──────────────────────────────────────────────
+async function sincronizarTemplates() {
+  const btn = document.getElementById('syncBtn');
+  const textoOriginal = btn.innerHTML;
+  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="animation:spin 1s linear infinite"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" stroke="var(--teal-deep)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Sincronizando...`;
+  btn.disabled = true;
+
+  try {
+    // 1. Busca templates da Meta via n8n
+    const res = await fetch(SYNC_WEBHOOK);
+    if (!res.ok) throw new Error('Falha ao conectar com a Meta');
+    const data = await res.json();
+    const templatesMeta = data.templates || [];
+
+    if (templatesMeta.length === 0) throw new Error('Nenhum template retornado pela Meta');
+
+    // 2. Atualiza status_meta no banco pra cada template
+    let atualizados = 0;
+    for (const t of templatesMeta) {
+      try {
+        await sbFetch(`ofertas_config?template_nome=eq.${t.nome}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status_meta: t.status })
+        });
+        atualizados++;
+      } catch(e) {
+        // Template pode não existir na ofertas_config ainda — ignora
+      }
+    }
+
+    // 3. Recarrega a tabela com dados atualizados
+    await carregarTemplates();
+
+    // 4. Feedback visual
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="var(--teal-deep)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> ${atualizados} atualizados`;
+    setTimeout(() => {
+      btn.innerHTML = textoOriginal;
+      btn.disabled = false;
+    }, 3000);
+
+  } catch(e) {
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="var(--coral)" stroke-width="2" stroke-linecap="round"/></svg> Erro: ${e.message}`;
+    btn.style.color = 'var(--coral)';
+    btn.style.borderColor = 'var(--coral)';
+    setTimeout(() => {
+      btn.innerHTML = textoOriginal;
+      btn.style.color = 'var(--teal-deep)';
+      btn.style.borderColor = 'var(--teal-deep)';
+      btn.disabled = false;
+    }, 4000);
+  }
+}
+
+// CSS da animação de loading
+const styleEl = document.createElement('style');
+styleEl.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+document.head.appendChild(styleEl);
 let tipoHeaderAtual = 'nenhum';
 let tipoBotaoAtual = 'nenhum';
 
