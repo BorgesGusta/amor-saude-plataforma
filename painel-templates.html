@@ -454,7 +454,7 @@ async function carregarTemplates() {
     // Fonte principal: ofertas_config (todos os templates sincronizados da Meta)
     // Lookup: templates_especialidade (especialidade vinculada + ativo/inativo)
     const [ofertas, regras, logs] = await Promise.all([
-      sbFetch('ofertas_config?select=template_nome,status_meta,inclui_nome,variaveis&order=template_nome.asc'),
+      sbFetch('ofertas_config?select=template_nome,status_meta,inclui_nome,variaveis,corpo,header_tipo,header_texto&order=template_nome.asc'),
       sbFetch('templates_especialidade?clinic_id=eq.amor_saude'),
       sbFetch('disparo_logs?clinic_id=eq.amor_saude&select=template_nome,status')
     ]);
@@ -496,7 +496,10 @@ async function carregarTemplates() {
         falhou: met.falhou,
         leitura: 0,
         custo: (met.enviado * 0.31).toFixed(2),
-        variaveis: variaveis.map(v => v.label || v)
+        variaveis: variaveis,
+        corpo: o.corpo || '',
+        header_tipo: o.header_tipo || null,
+        header_texto: o.header_texto || null.map(v => v.label || v)
       };
     });
 
@@ -940,18 +943,41 @@ function abrirDrawer(id){
   setTimeout(() => {
     const bubble = document.getElementById('drawerPreviewBubble');
     const inputs = document.querySelectorAll('.var-input');
-    if(!bubble || !inputs.length) return;
+    if(!bubble) return;
 
     function atualizarBubble(){
       const vars = t.variaveis.map((v, i) => {
         const inp = document.getElementById(`var_${i}`);
         return { label: typeof v==='object'?v.label:v, valor: inp ? inp.value : (typeof v==='object'?v.valor:'') };
       });
-      let preview = vars.map((v,i) => `<span style="color:#5C6B67;font-size:11px;">{{${i+1}}} ${v.label}:</span> <strong>${v.valor || '[não preenchido]'}</strong>`).join('<br>');
-      bubble.innerHTML = preview;
+
+      if(t.corpo){
+        // Substitui variáveis no corpo real
+        let corpo = t.corpo;
+        vars.forEach((v, i) => {
+          const val = v.valor || `[${v.label}]`;
+          corpo = corpo.replace(new RegExp(`\\{\\{${i+1}\\}\\}`, 'g'), `<strong style="color:#0F4A52;">${val}</strong>`);
+        });
+
+        // Header
+        let headerHTML = '';
+        if(t.header_tipo === 'image'){
+          headerHTML = `<div style="background:linear-gradient(135deg,#EEF5F4,#2BAFBE22);height:80px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#5C6B67;border-radius:6px 6px 0 0;margin:-10px -12px 8px;">📷 Imagem do cabeçalho</div>`;
+        } else if(t.header_tipo === 'text' && t.header_texto){
+          headerHTML = `<div style="font-weight:700;font-size:13px;margin-bottom:6px;">${t.header_texto}</div>`;
+        }
+
+        bubble.innerHTML = headerHTML + `<span style="font-size:12.5px;line-height:1.6;">${corpo}</span>`;
+      } else {
+        // Fallback se corpo ainda não foi sincronizado
+        let preview = vars.filter((_,i)=>i>0).map((v,i) =>
+          `<span style="color:#5C6B67;font-size:11px;">{{${i+2}}} ${v.label}:</span> <strong>${v.valor || '[não preenchido]'}</strong>`
+        ).join('<br>');
+        bubble.innerHTML = preview || '<span style="color:#5C6B67;font-size:12px;">Sincronize com a Meta para ver o preview.</span>';
+      }
     }
 
-    inputs.forEach(inp => inp.addEventListener('input', atualizarBubble));
+    if(inputs.length) inputs.forEach(inp => inp.addEventListener('input', atualizarBubble));
     atualizarBubble();
   }, 100);
 
