@@ -271,8 +271,10 @@
       </div>
     </div>
 
-    <p class="label" style="margin-top:28px;">Regras de disparo por especialidade</p>
-    <p style="font-size:13px;color:var(--ink-soft);margin:-8px 0 16px;">Só um template pode ficar ativo por especialidade. Ativar um novo desativa o anterior automaticamente.</p>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin:32px 0 6px;">
+      <p class="label" style="margin:0;">Regras de disparo por especialidade</p>
+    </div>
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 16px;line-height:1.5;">Só um template pode ficar ativo por especialidade. Ativar um novo desativa o anterior automaticamente.</p>
     <div id="regrasContainer">
       <div style="padding:32px;text-align:center;color:var(--ink-soft);font-size:13.5px;">Carregando...</div>
     </div>
@@ -345,49 +347,70 @@
       Object.entries(porEspecialidade).forEach(([esp, lista]) => {
         const card = document.createElement('div');
         card.className = 'card';
-        card.style.marginBottom = '16px';
+        card.style.cssText = 'margin-bottom:14px;padding:20px 22px;';
 
-        const titulo = document.createElement('p');
-        titulo.className = 'label';
-        titulo.style.marginBottom = '4px';
-        titulo.textContent = esp.charAt(0).toUpperCase() + esp.slice(1);
-        card.appendChild(titulo);
+        // Header da especialidade
+        const header = document.createElement('div');
+        header.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:14px;';
+        const espNome = document.createElement('span');
+        espNome.style.cssText = 'font-family:\'Plus Jakarta Sans\',sans-serif;font-weight:600;font-size:15px;color:var(--ink);';
+        espNome.textContent = esp.charAt(0).toUpperCase() + esp.slice(1);
+        const qtd = document.createElement('span');
+        qtd.style.cssText = 'font-size:11.5px;font-weight:500;background:var(--mist);color:var(--ink-soft);padding:2px 8px;border-radius:999px;';
+        qtd.textContent = `${lista.length} template${lista.length > 1 ? 's' : ''}`;
+        header.appendChild(espNome);
+        header.appendChild(qtd);
+        card.appendChild(header);
 
-        lista.forEach(r => {
+        lista.forEach((r, idx) => {
           const aprovado = ofertasMap[r.template_nome] !== undefined;
           const row = document.createElement('div');
-          row.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line);';
+          row.style.cssText = `display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:10px;background:${r.ativo ? 'var(--mist)' : '#fafaf8'};border:1px solid ${r.ativo ? 'var(--teal)' : 'var(--line)'};${idx > 0 ? 'margin-top:8px;' : ''}transition:border .15s;`;
+
+          // Indicador ativo
+          const dot = document.createElement('div');
+          dot.style.cssText = `width:8px;height:8px;border-radius:50%;flex-shrink:0;background:${r.ativo ? 'var(--teal-deep)' : 'var(--line)'};`;
+          row.appendChild(dot);
 
           const info = document.createElement('div');
-          info.style.flex = '1';
+          info.style.cssText = 'flex:1;min-width:0;';
+
           const nome = document.createElement('div');
-          nome.style.cssText = 'font-size:13.5px;font-weight:500;font-family:monospace;color:var(--ink);';
-          nome.textContent = r.template_nome;
-          const desc = document.createElement('div');
-          desc.style.cssText = 'font-size:12px;color:var(--ink-soft);margin-top:2px;';
-          desc.textContent = aprovado ? 'Aprovado pela Meta · pronto para uso' : 'Aguardando aprovação da Meta';
+          nome.style.cssText = 'font-size:13.5px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+          // Humaniza o nome do template
+          nome.textContent = r.template_nome.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+          nome.title = r.template_nome;
+
+          const sub = document.createElement('div');
+          sub.style.cssText = 'font-size:11.5px;color:var(--ink-soft);margin-top:2px;font-family:monospace;';
+          sub.textContent = r.template_nome;
+
           info.appendChild(nome);
-          info.appendChild(desc);
+          info.appendChild(sub);
           row.appendChild(info);
 
           const badge = document.createElement('span');
-          badge.style.cssText = `font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;flex-shrink:0;background:${aprovado ? '#E1F5EE' : '#FCF3DC'};color:${aprovado ? '#085041' : '#8A6300'};`;
-          badge.textContent = aprovado ? 'aprovado' : 'pendente';
+          badge.style.cssText = `font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;flex-shrink:0;white-space:nowrap;background:${aprovado ? '#E1F5EE' : '#FCF3DC'};color:${aprovado ? '#085041' : '#8A6300'};`;
+          badge.textContent = aprovado ? '✓ aprovado' : '⏳ pendente';
           row.appendChild(badge);
 
           const btn = document.createElement('button');
           const podeAtivar = aprovado && !r.ativo;
-          btn.style.cssText = `font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:999px;flex-shrink:0;cursor:${podeAtivar ? 'pointer' : 'default'};border:none;transition:background .15s;background:${r.ativo ? 'var(--teal-deep)' : aprovado ? '#EEF5F4' : '#F0EFE9'};color:${r.ativo ? '#fff' : aprovado ? 'var(--teal-ink)' : 'var(--ink-soft)'};opacity:${!aprovado && !r.ativo ? '0.5' : '1'};`;
+          btn.style.cssText = `font-size:12.5px;font-weight:600;padding:7px 16px;border-radius:999px;flex-shrink:0;white-space:nowrap;cursor:${podeAtivar ? 'pointer' : 'default'};border:none;transition:all .15s;background:${r.ativo ? 'var(--teal-deep)' : aprovado ? 'var(--mist)' : '#F0EFE9'};color:${r.ativo ? '#fff' : aprovado ? 'var(--teal-ink)' : 'var(--ink-soft)'};opacity:${!aprovado && !r.ativo ? '0.45' : '1'};`;
           btn.textContent = r.ativo ? 'ativo agora' : 'ativar';
           btn.disabled = !podeAtivar;
 
           if (podeAtivar) {
+            btn.onmouseenter = () => { btn.style.background = 'var(--teal-deep)'; btn.style.color = '#fff'; };
+            btn.onmouseleave = () => { btn.style.background = 'var(--mist)'; btn.style.color = 'var(--teal-ink)'; };
             btn.onclick = () => {
               const atualAtivo = lista.find(x => x.ativo);
               pendente = { esp, novoId: r.id, novoNome: r.template_nome, antigoId: atualAtivo?.id, antigoNome: atualAtivo?.template_nome };
+              const nomeHumano = r.template_nome.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+              const antigoHumano = atualAtivo?.template_nome.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
               const texto = atualAtivo
-                ? `Isso vai desativar "<strong>${atualAtivo.template_nome}</strong>" e ativar "<strong>${r.template_nome}</strong>" para ${esp}. O próximo check-in nessa especialidade já vai usar o template novo.`
-                : `"<strong>${r.template_nome}</strong>" vai ser ativado para ${esp}.`;
+                ? `Isso vai desativar <strong>${antigoHumano}</strong> e ativar <strong>${nomeHumano}</strong> para ${esp}. O próximo check-in nessa especialidade já vai usar o template novo.`
+                : `<strong>${nomeHumano}</strong> vai ser ativado para ${esp}.`;
               document.getElementById('modalTexto').innerHTML = texto;
               document.getElementById('modalOverlay').style.display = 'flex';
             };
