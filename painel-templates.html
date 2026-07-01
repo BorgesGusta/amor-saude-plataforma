@@ -475,7 +475,7 @@ async function carregarTemplates() {
     });
 
     // Monta array final — todos os templates da ofertas_config
-    templates = ofertas.map(o => {
+    templates = (ofertas || []).map(o => {
       const vinculo = regrasMap[o.template_nome] || [];
       const ativoItem = vinculo.find(v => v.ativo);
       const primeiroVinculo = vinculo[0];
