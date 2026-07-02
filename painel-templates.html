@@ -131,23 +131,18 @@
   .btn-ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
   .upload-area{border:2px dashed var(--line);border-radius:10px;padding:16px;text-align:center;cursor:pointer;color:var(--ink-soft);font-size:12.5px;transition:border .15s;}
   .upload-area:hover{border-color:var(--teal-deep);color:var(--teal-deep);}
-  .senha-field{display:flex;gap:8px;align-items:flex-end;}
   @media(max-width:700px){
     .modal-body{grid-template-columns:1fr;}
     .modal-preview-col{display:none;}
   }
 
-  /* DETALHE LATERAL (drawer) */
-  .drawer{position:fixed;top:0;right:-480px;width:460px;height:100vh;background:#fff;border-left:1px solid var(--line);z-index:150;transition:right .25s;overflow-y:auto;padding:28px;}
-  .drawer.open{right:0;}
-  .drawer h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;margin:0 0 4px;}
-  .drawer .close-btn{position:absolute;top:20px;right:20px;background:none;border:none;cursor:pointer;font-size:20px;color:var(--ink-soft);}
+  /* DETALHE DO TEMPLATE (modal central) */
   .drawer-section{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);}
+  .drawer-section:first-child{margin-top:0;padding-top:0;border-top:none;}
   .drawer-section h3{font-size:12px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin:0 0 12px;}
   .kv{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:13px;}
   .kv .k{color:var(--ink-soft);}
   .kv .v{font-weight:500;text-align:right;}
-  .preview-bubble{background:#EEF5F4;border-radius:12px 12px 12px 2px;padding:12px 14px;font-size:13px;line-height:1.6;color:var(--ink);margin-top:8px;}
 
   @media(max-width:680px){
     .metrics{grid-template-columns:repeat(2,1fr);}
@@ -155,7 +150,6 @@
     .header{padding:14px 16px;}
     thead th:nth-child(4),tbody td:nth-child(4),
     thead th:nth-child(5),tbody td:nth-child(5){display:none;}
-    .drawer{width:100%;right:-100%;}
   }
 </style>
 </head>
@@ -352,12 +346,15 @@
         </div>
 
         <!-- BOTÃO CTA -->
-        <div class="section-divider">Botão · opcional</div>
+        <div class="section-divider">Botões</div>
+        <p class="hint" style="margin-top:-6px;margin-bottom:10px;">Não é obrigatório — a mensagem funciona normalmente sem botão.</p>
         <div class="btn-row" id="tipoBotao">
           <button class="tipo-btn active" onclick="selecionarBotao(this,'nenhum')">Nenhum</button>
-          <button class="tipo-btn" onclick="selecionarBotao(this,'url')">Link (URL)</button>
+          <button class="tipo-btn" onclick="selecionarBotao(this,'personalizado')">Personalizado</button>
+          <button class="tipo-btn" onclick="selecionarBotao(this,'site')">Acessar o site</button>
+          <button class="tipo-btn" onclick="selecionarBotao(this,'whatsapp')">Ligar no WhatsApp</button>
           <button class="tipo-btn" onclick="selecionarBotao(this,'telefone')">Ligar</button>
-          <button class="tipo-btn" onclick="selecionarBotao(this,'rapida')">Resposta rápida</button>
+          <button class="tipo-btn" onclick="selecionarBotao(this,'cupom')">Copiar código da oferta</button>
         </div>
         <div id="botaoFields" style="display:none;margin-top:8px;">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -366,21 +363,12 @@
               <input type="text" id="tplBtnTexto" placeholder="ex: Ver oferta" maxlength="25" oninput="atualizarPreview()"/>
             </div>
             <div class="field" style="margin:0;" id="botaoUrlField">
-              <label>URL ou número</label>
+              <label id="botaoUrlLabel">URL do site</label>
               <input type="text" id="tplBtnUrl" placeholder="https://..." oninput="atualizarPreview()"/>
             </div>
           </div>
+          <p class="hint" id="botaoHint" style="margin-top:6px;"></p>
         </div>
-
-        <!-- SENHA DE CONFIRMAÇÃO -->
-        <div class="section-divider">Confirmação</div>
-        <div class="field senha-field">
-          <div style="flex:1;">
-            <label>Confirme sua senha para enviar à Meta</label>
-            <input type="password" id="tplSenha" placeholder="••••••••"/>
-          </div>
-        </div>
-        <div style="height:20px;"></div>
 
       </div>
 
@@ -425,10 +413,59 @@
   </div>
 </div>
 
+<!-- CONFIRMAÇÃO DE SENHA PARA ENVIO -->
+<div class="modal-overlay" id="modalSenhaConfirm">
+  <div style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.15);">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:16px;margin-bottom:6px;">Confirmar envio para a Meta</div>
+    <p style="font-size:13px;color:var(--ink-soft);margin:0 0 18px;line-height:1.5;">Digite sua senha de gestora para confirmar o envio do template <strong id="confirmNomeTemplate"></strong> para análise da Meta.</p>
+    <input type="password" id="senhaConfirmInput" placeholder="••••••••" style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;font-size:14px;font-family:'Inter',sans-serif;box-sizing:border-box;"/>
+    <p id="senhaConfirmErro" style="color:var(--coral);font-size:12.5px;margin:6px 0 0;display:none;">Digite sua senha para confirmar.</p>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+      <button class="btn-ghost" onclick="fecharConfirmacaoSenha()">Cancelar</button>
+      <button class="btn-primary" onclick="confirmarEnvioTemplate()">Confirmar envio</button>
+    </div>
+  </div>
+</div>
+
 <!-- DRAWER DETALHE -->
-<div class="drawer" id="drawer">
-  <button class="close-btn" onclick="fecharDrawer()">✕</button>
-  <div id="drawerContent"></div>
+<div class="modal-overlay" id="drawer">
+  <div class="modal" style="max-width:680px;">
+
+    <div class="modal-header" style="display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:16px;">
+      <div>
+        <h2 id="drawerTitulo" style="margin:0 0 3px;">Template</h2>
+        <p class="tpl-mono" id="drawerSubtitulo" style="margin:0;"></p>
+      </div>
+      <button onclick="fecharDrawer()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--ink-soft);line-height:1;padding:2px;">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="modal-form" id="drawerContent"></div>
+
+      <div class="modal-preview-col">
+        <div class="preview-label">Preview WhatsApp</div>
+        <div class="phone-frame">
+          <div class="phone-status">
+            <div class="avatar">AS</div>
+            <div class="contact">
+              <div class="cname">Amor Saúde</div>
+              <div class="csub">online</div>
+            </div>
+          </div>
+          <div class="phone-chat">
+            <div class="phone-bubble" id="drawerPhoneBubble"></div>
+          </div>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:#aaa;text-align:center;line-height:1.5;">Preview com os valores atuais.</div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="left"></div>
+      <button class="btn-ghost" onclick="fecharDrawer()">Fechar</button>
+    </div>
+
+  </div>
 </div>
 
 <script>
@@ -709,8 +746,36 @@ function selecionarBotao(btn, tipo){
   tipoBotaoAtual = tipo;
   document.querySelectorAll('#tipoBotao .tipo-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('botaoFields').style.display = tipo==='nenhum' ? 'none' : 'block';
-  document.getElementById('botaoUrlField').style.display = tipo==='rapida' ? 'none' : 'block';
+
+  const camposEl = document.getElementById('botaoFields');
+  const urlFieldEl = document.getElementById('botaoUrlField');
+  const urlLabelEl = document.getElementById('botaoUrlLabel');
+  const urlInputEl = document.getElementById('tplBtnUrl');
+  const hintEl = document.getElementById('botaoHint');
+
+  camposEl.style.display = tipo==='nenhum' ? 'none' : 'block';
+
+  const config = {
+    personalizado: { mostraCampo:false, label:'', placeholder:'', hint:'O cliente toca no botão e essa resposta é enviada como mensagem de volta — útil para acionar um fluxo automático.' },
+    site:          { mostraCampo:true, label:'URL do site', placeholder:'https://...', hint:'Máximo de 2 botões desse tipo por template. Pode usar {{1}} no fim da URL para um link dinâmico.' },
+    whatsapp:      { mostraCampo:false, label:'', placeholder:'', hint:'Abre uma chamada de voz pelo WhatsApp com o seu número comercial. Apenas 1 botão desse tipo por template.' },
+    telefone:      { mostraCampo:true, label:'Número de telefone', placeholder:'5594999999999', hint:'Apenas 1 botão de ligação por template. Use o formato internacional, sem o "+".' },
+    cupom:         { mostraCampo:true, label:'Código do cupom', placeholder:'ex: AMOR15', hint:'O cliente toca e o código é copiado automaticamente — ideal para os cupons de desconto.' }
+  };
+
+  if(tipo === 'nenhum'){
+    atualizarPreview();
+    return;
+  }
+
+  const c = config[tipo];
+  urlFieldEl.style.display = c.mostraCampo ? 'block' : 'none';
+  if(c.mostraCampo){
+    urlLabelEl.textContent = c.label;
+    urlInputEl.placeholder = c.placeholder;
+  }
+  hintEl.textContent = c.hint;
+
   atualizarPreview();
 }
 
@@ -794,7 +859,7 @@ function abrirModalCriar(){
 function fecharModalCriar(){
   document.getElementById('modalCriar').classList.remove('open');
   // Reset
-  ['tplNome','tplCorpo','tplRodape','tplHeaderTexto','tplBtnTexto','tplBtnUrl','tplSenha'].forEach(id => {
+  ['tplNome','tplCorpo','tplRodape','tplHeaderTexto','tplBtnTexto','tplBtnUrl'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.value='';
   });
@@ -810,19 +875,39 @@ function fecharModalCriar(){
   document.getElementById('prevBtn').classList.remove('show');
   document.getElementById('prevTexto').innerHTML='Sua mensagem aparecerá aqui...';
   tipoHeaderAtual='nenhum'; tipoBotaoAtual='nenhum';
-  document.querySelectorAll('#tipoHeader .tipo-btn, #tipoBotao .tipo-btn').forEach((b,i) => {
-    b.classList.toggle('active', i===0 || i===4);
-  });
+  document.querySelectorAll('#tipoHeader .tipo-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.querySelectorAll('#tipoBotao .tipo-btn').forEach((b,i) => b.classList.toggle('active', i===0));
 }
+
+let templateParaEnviar = null;
 
 function submeterTemplate(){
   const nome = document.getElementById('tplNome').value.trim();
   const corpo = document.getElementById('tplCorpo').value.trim();
-  const senha = document.getElementById('tplSenha').value;
 
   if(!nome){ alert('Informe o nome do template.'); return; }
   if(!corpo){ alert('Preencha o corpo da mensagem.'); return; }
-  if(!senha){ alert('Confirme sua senha para continuar.'); return; }
+
+  templateParaEnviar = { nome, corpo };
+  document.getElementById('confirmNomeTemplate').textContent = `"${nome}"`;
+  document.getElementById('senhaConfirmInput').value = '';
+  document.getElementById('senhaConfirmErro').style.display = 'none';
+  document.getElementById('modalSenhaConfirm').classList.add('open');
+  setTimeout(() => document.getElementById('senhaConfirmInput').focus(), 50);
+}
+
+function fecharConfirmacaoSenha(){
+  document.getElementById('modalSenhaConfirm').classList.remove('open');
+  templateParaEnviar = null;
+}
+
+function confirmarEnvioTemplate(){
+  const senha = document.getElementById('senhaConfirmInput').value;
+  if(!senha){
+    document.getElementById('senhaConfirmErro').style.display = 'block';
+    return;
+  }
+  if(!templateParaEnviar) return;
 
   // Coleta variáveis declaradas
   const variaveis = [];
@@ -830,7 +915,9 @@ function submeterTemplate(){
     variaveis.push({ label: inp.value || `Variável ${inp.dataset.var}`, valor: '' });
   });
 
-  alert(`✓ Template "${nome}" enviado para análise da Meta.\n\nVariáveis declaradas: ${variaveis.length}\nAguarde aprovação em até 24h.\n\nEm produção, isso chamaria a API da Meta e salvaria no banco com status "pendente".`);
+  document.getElementById('modalSenhaConfirm').classList.remove('open');
+  alert(`✓ Template "${templateParaEnviar.nome}" enviado para análise da Meta.\n\nVariáveis declaradas: ${variaveis.length}\nAguarde aprovação em até 24h.\n\nEm produção, isso chamaria a API da Meta, validaria a senha no backend e salvaria no banco com status "pendente".`);
+  templateParaEnviar = null;
   fecharModalCriar();
 }
 
@@ -872,13 +959,14 @@ function abrirDrawer(id){
     `<option value="${e}" ${t.especialidade?.toLowerCase()===e ? 'selected' : ''}>${e.charAt(0).toUpperCase()+e.slice(1)}</option>`
   ).join('');
 
+  document.getElementById('drawerTitulo').textContent = t.display;
+  document.getElementById('drawerSubtitulo').textContent = t.nome;
+
   document.getElementById('drawerContent').innerHTML = `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
       ${statusBadge(t.status)}
       ${t.ativo ? '<span class="badge ativo">● ativo agora</span>' : ''}
     </div>
-    <h2 style="margin:8px 0 2px;">${t.display}</h2>
-    <div class="tpl-mono" style="margin-bottom:16px;">${t.nome}</div>
 
     <!-- VÍNCULO COM ESPECIALIDADE -->
     <div class="drawer-section">
@@ -918,20 +1006,11 @@ function abrirDrawer(id){
     ${t.variaveis && t.variaveis.length > 0 ? `
     <div class="drawer-section">
       <h3>Variáveis da oferta</h3>
-      <p style="font-size:12px;color:var(--ink-soft);margin:0 0 10px;">Edite os valores sem precisar alterar o template na Meta.</p>
+      <p style="font-size:12px;color:var(--ink-soft);margin:0 0 10px;">Edite os valores sem precisar alterar o template na Meta. O preview ao lado atualiza em tempo real.</p>
       ${varsHTML}
       <button class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="salvarVariaveis('${t.nome}')">
         Salvar variáveis
       </button>
-      <div style="margin-top:12px;">
-        <div style="font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Preview com valores atuais</div>
-        <div style="background:#ECE5DD;border-radius:10px;padding:10px;">
-          <div style="background:#fff;border-radius:10px 10px 10px 2px;padding:10px 12px;max-width:95%;box-shadow:0 1px 2px rgba(0,0,0,.1);font-size:12.5px;line-height:1.6;color:#111;" id="drawerPreviewBubble">
-            Preencha as variáveis para ver o preview.
-          </div>
-          <div style="font-size:10px;color:#999;text-align:right;margin-top:4px;">14:12 ✓✓</div>
-        </div>
-      </div>
     </div>` : ''}
 
     <!-- DESEMPENHO -->
@@ -942,52 +1021,42 @@ function abrirDrawer(id){
       <div class="kv"><span class="k">Taxa de leitura</span><span class="v">— (via Meta)</span></div>
       <div class="kv"><span class="k">Custo estimado</span><span class="v">${parseFloat(t.custo) > 0 ? 'R$ '+t.custo.replace('.',',') : '—'}</span></div>
     </div>
-
-    <div class="drawer-section">
-      <button class="btn-ghost" style="width:100%;" onclick="fecharDrawer()">Fechar</button>
-    </div>
   `;
-  // Atualiza preview em tempo real
-  setTimeout(() => {
-    const bubble = document.getElementById('drawerPreviewBubble');
-    const inputs = document.querySelectorAll('.var-input');
+
+  // Preview real no celular — atualiza junto com os inputs de variável
+  function atualizarPreviewDrawer(){
+    const bubble = document.getElementById('drawerPhoneBubble');
     if(!bubble) return;
 
-    function atualizarBubble(){
-      const vars = t.variaveis.map((v, i) => {
-        const inp = document.getElementById(`var_${i}`);
-        return { label: typeof v==='object'?v.label:v, valor: inp ? inp.value : (typeof v==='object'?v.valor:'') };
-      });
+    const vars = (t.variaveis || []).map((v, i) => {
+      const inp = document.getElementById(`var_${i}`);
+      return { label: typeof v==='object'?v.label:v, valor: inp ? inp.value : (typeof v==='object'?v.valor:'') };
+    });
 
-      if(t.corpo){
-        // Substitui variáveis no corpo real
-        let corpo = t.corpo;
-        vars.forEach((v, i) => {
-          const val = v.valor || `[${v.label}]`;
-          corpo = corpo.replace(new RegExp(`\\{\\{${i+1}\\}\\}`, 'g'), `<strong style="color:#0F4A52;">${val}</strong>`);
-        });
-
-        // Header
-        let headerHTML = '';
-        if(t.header_tipo === 'image'){
-          headerHTML = `<div style="background:linear-gradient(135deg,#EEF5F4,#2BAFBE22);height:80px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#5C6B67;border-radius:6px 6px 0 0;margin:-10px -12px 8px;">📷 Imagem do cabeçalho</div>`;
-        } else if(t.header_tipo === 'text' && t.header_texto){
-          headerHTML = `<div style="font-weight:700;font-size:13px;margin-bottom:6px;">${t.header_texto}</div>`;
-        }
-
-        bubble.innerHTML = headerHTML + `<span style="font-size:12.5px;line-height:1.6;">${corpo}</span>`;
-      } else {
-        // Fallback se corpo ainda não foi sincronizado
-        let preview = vars.filter((_,i)=>i>0).map((v,i) =>
-          `<span style="color:#5C6B67;font-size:11px;">{{${i+2}}} ${v.label}:</span> <strong>${v.valor || '[não preenchido]'}</strong>`
-        ).join('<br>');
-        bubble.innerHTML = preview || '<span style="color:#5C6B67;font-size:12px;">Sincronize com a Meta para ver o preview.</span>';
-      }
+    // Header: imagem real (se houver) ou texto fixo do cabeçalho
+    let headerHTML = '';
+    if(t.header_tipo === 'image' && t.header_media_url){
+      headerHTML = `<img src="${t.header_media_url}" alt="Cabeçalho" style="width:100%;height:110px;object-fit:cover;display:block;">`;
+    } else if(t.header_tipo === 'text' && t.header_texto){
+      headerHTML = `<div style="font-weight:700;font-size:12.5px;padding:9px 10px 0;color:#111;">${t.header_texto}</div>`;
     }
 
-    if(inputs.length) inputs.forEach(inp => inp.addEventListener('input', atualizarBubble));
-    atualizarBubble();
-  }, 100);
+    if(t.corpo){
+      let corpo = t.corpo;
+      vars.forEach((v, i) => {
+        const val = v.valor || `[${v.label}]`;
+        corpo = corpo.replace(new RegExp(`\\{\\{${i+1}\\}\\}`, 'g'), `<strong style="color:#0F4A52;">${val}</strong>`);
+      });
+      bubble.innerHTML = headerHTML + `<div style="padding:${headerHTML ? '6px' : '9px'} 10px 6px;font-size:12.5px;line-height:1.6;color:#111;">${corpo}</div><div class="phone-time">14:12 ✓✓</div>`;
+    } else {
+      bubble.innerHTML = headerHTML + `<div style="padding:9px 10px 6px;font-size:12px;color:#5C6B67;">Sincronize com a Meta para ver o texto completo do template.</div>`;
+    }
+  }
+
+  setTimeout(() => {
+    document.querySelectorAll('.var-input').forEach(inp => inp.addEventListener('input', atualizarPreviewDrawer));
+    atualizarPreviewDrawer();
+  }, 50);
 
   document.getElementById('drawer').classList.add('open');
 }
