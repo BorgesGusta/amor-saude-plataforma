@@ -28,7 +28,12 @@
   .header .spacer{flex:1;}
   .btn-primary{background:var(--teal-deep);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;}
   .btn-primary:hover{background:var(--teal-ink);}
-  .logout{background:none;border:none;color:var(--ink-soft);font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .logout{
+    background:none;border:1px solid var(--line);border-radius:10px;padding:8px 14px;
+    color:var(--ink-soft);font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;
+    display:flex;align-items:center;gap:6px;flex-shrink:0;
+  }
+  .logout:hover{border-color:var(--coral);color:#B23226;}
 
   /* SECTION */
   .section{padding:0 32px;}
@@ -177,7 +182,10 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
       Novo template
     </button>
-    <button class="logout" id="logoutBtn">Sair</button>
+    <button class="logout" id="logoutBtn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Sair
+    </button>
   </div>
 
   <div class="section">

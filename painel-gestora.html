@@ -42,6 +42,19 @@
   }
   .header .logo{height:36px;width:auto;display:block;flex-shrink:0;}
   .header .divider{width:1px;height:30px;background:var(--line);flex-shrink:0;}
+  .btn-ghost-teal{
+    background:#fff;color:var(--teal-deep);border:1.5px solid var(--teal-deep);
+    border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;
+    text-decoration:none;display:flex;align-items:center;gap:6px;
+    font-family:'Inter',sans-serif;cursor:pointer;flex-shrink:0;white-space:nowrap;
+  }
+  .btn-ghost-teal:hover{background:var(--mist);}
+  .btn-logout{
+    background:none;border:1px solid var(--line);border-radius:10px;
+    padding:8px 14px;color:var(--ink-soft);font-size:12.5px;cursor:pointer;
+    font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;flex-shrink:0;
+  }
+  .btn-logout:hover{border-color:var(--coral);color:var(--coral-deep);}
   .header .titles{flex:1;min-width:160px;}
   .eyebrow{
     font-size:13px;
@@ -201,8 +214,15 @@
       <p class="eyebrow">Painel da gestora</p>
       <h1>Relatório de junho</h1>
     </div>
-    <span class="period">Junho 2026</span>
-    <button id="logoutBtn" style="background:none;border:none;color:var(--ink-soft);font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;">Sair</button>
+    <span class="period" id="periodoLabel">Junho 2026</span>
+    <a href="painel-templates.html" class="btn-ghost-teal">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="var(--teal-deep)" stroke-width="2" stroke-linecap="round"/></svg>
+      Gerenciar templates
+    </a>
+    <button id="logoutBtn" class="btn-logout">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Sair
+    </button>
   </div>
 
   <div class="section">
@@ -210,20 +230,23 @@
     <div class="metrics">
       <div class="metric">
         <p class="m-label">Disparos no mês</p>
-        <p class="m-val">1.842</p>
+        <p class="m-val" id="mDisparos">—</p>
       </div>
       <div class="metric">
         <p class="m-label">Custo estimado</p>
-        <p class="m-val">R$ 262</p>
+        <p class="m-val" id="mCusto">—</p>
       </div>
       <div class="metric">
         <p class="m-label">Taxa de entrega</p>
-        <p class="m-val">98%</p>
+        <p class="m-val" id="mEntrega">—</p>
       </div>
     </div>
 
     <div class="card">
-      <p class="label">Categoria do disparo</p>
+      <p class="label" style="display:flex;align-items:center;gap:8px;">
+        Categoria do disparo
+        <span style="font-size:11px;font-weight:600;background:var(--amber-bg);color:var(--amber-tx);padding:2px 9px;border-radius:999px;">dado de exemplo</span>
+      </p>
       <div class="split">
         <div class="donut"></div>
         <div>
@@ -249,25 +272,8 @@
 
     <div class="card bars">
       <p class="label">Disparos por especialidade</p>
-      <div class="bar-row">
-        <span class="bname">Oftalmologia</span>
-        <div class="bar-track"><div class="bar-fill" style="width:84%;"></div></div>
-        <span class="bval">612</span>
-      </div>
-      <div class="bar-row">
-        <span class="bname">Nutrição</span>
-        <div class="bar-track"><div class="bar-fill" style="width:74%;"></div></div>
-        <span class="bval">540</span>
-      </div>
-      <div class="bar-row">
-        <span class="bname">Ginecologia</span>
-        <div class="bar-track"><div class="bar-fill" style="width:54%;"></div></div>
-        <span class="bval">390</span>
-      </div>
-      <div class="bar-row">
-        <span class="bname">Odontologia</span>
-        <div class="bar-track"><div class="bar-fill" style="width:42%;"></div></div>
-        <span class="bval">300</span>
+      <div id="especialidadeBars">
+        <div style="padding:12px 0;color:var(--ink-soft);font-size:13.5px;">Carregando...</div>
       </div>
     </div>
 
@@ -432,6 +438,57 @@
     }
   }
 
+  const MESES_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  async function carregarDashboard() {
+    try {
+      const agora = new Date();
+      const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1).toISOString();
+
+      document.getElementById('periodoLabel').textContent = `${MESES_PT[agora.getMonth()]} ${agora.getFullYear()}`;
+
+      const logs = await sbFetch(`disparo_logs?clinic_id=eq.amor_saude&criado_em=gte.${inicioMes}&select=especialidade,status`);
+
+      const enviados = logs.filter(l => l.status === 'enviado');
+      const totalDisparos = logs.length;
+      const custoEstimado = enviados.length * 0.31;
+      const taxaEntrega = totalDisparos > 0 ? Math.round((enviados.length / totalDisparos) * 100) : null;
+
+      document.getElementById('mDisparos').textContent = totalDisparos > 0 ? totalDisparos.toLocaleString('pt-BR') : '—';
+      document.getElementById('mCusto').textContent = enviados.length > 0 ? `R$ ${custoEstimado.toFixed(2).replace('.', ',')}` : 'R$ 0';
+      document.getElementById('mEntrega').textContent = taxaEntrega !== null ? `${taxaEntrega}%` : '—';
+
+      // Agrupa disparos enviados por especialidade
+      const porEsp = {};
+      enviados.forEach(l => {
+        const esp = l.especialidade || 'outros';
+        porEsp[esp] = (porEsp[esp] || 0) + 1;
+      });
+
+      const barsContainer = document.getElementById('especialidadeBars');
+      const entradas = Object.entries(porEsp).sort((a, b) => b[1] - a[1]);
+
+      if (entradas.length === 0) {
+        barsContainer.innerHTML = `<p style="font-size:13.5px;color:var(--ink-soft);padding:12px 0;margin:0;">Nenhum disparo registrado neste mês ainda.</p>`;
+      } else {
+        const max = entradas[0][1];
+        barsContainer.innerHTML = entradas.map(([esp, qtd], idx) => {
+          const nome = esp.charAt(0).toUpperCase() + esp.slice(1);
+          const pct = Math.max(6, Math.round((qtd / max) * 100));
+          return `
+            <div class="bar-row" style="${idx > 0 ? 'margin-top:14px;' : ''}">
+              <span class="bname">${nome}</span>
+              <div class="bar-track"><div class="bar-fill" style="width:${pct}%;"></div></div>
+              <span class="bval">${qtd}</span>
+            </div>`;
+        }).join('');
+      }
+    } catch (e) {
+      console.error('Erro ao carregar dashboard:', e);
+      document.getElementById('especialidadeBars').innerHTML = `<p style="font-size:13px;color:var(--coral);padding:12px 0;margin:0;">Erro ao carregar: ${e.message}</p>`;
+    }
+  }
+
   document.getElementById('modalCancelar').onclick = () => {
     document.getElementById('modalOverlay').style.display = 'none';
     pendente = null;
@@ -453,6 +510,7 @@
   };
 
   carregarRegras();
+  carregarDashboard();
 </script>
 </body>
 </html>
