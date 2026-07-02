@@ -89,7 +89,7 @@
   }
   .metrics{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
+    grid-template-columns:repeat(4,1fr);
     gap:14px;
     margin-bottom:24px;
   }
@@ -197,7 +197,7 @@
   }
   .add-tpl:hover{border-color:var(--teal);background:var(--mist);}
   @media (max-width:640px){
-    .metrics{grid-template-columns:1fr;}
+    .metrics{grid-template-columns:repeat(2,1fr);}
     .split{grid-template-columns:1fr;}
     .gallery{grid-template-columns:repeat(2,1fr);}
     .header .divider{display:none;}
@@ -239,6 +239,10 @@
       <div class="metric">
         <p class="m-label">Taxa de entrega</p>
         <p class="m-val" id="mEntrega">—</p>
+      </div>
+      <div class="metric" style="background:var(--teal-deep);">
+        <p class="m-label" style="color:#cfe8ec;">Cupons resgatados</p>
+        <p class="m-val" id="mResgate" style="color:#fff;">—</p>
       </div>
     </div>
 
@@ -447,16 +451,19 @@
 
       document.getElementById('periodoLabel').textContent = `${MESES_PT[agora.getMonth()]} ${agora.getFullYear()}`;
 
-      const logs = await sbFetch(`disparo_logs?clinic_id=eq.amor_saude&criado_em=gte.${inicioMes}&select=especialidade,status`);
+      const logs = await sbFetch(`disparo_logs?clinic_id=eq.amor_saude&criado_em=gte.${inicioMes}&select=especialidade,status,resgatado`);
 
       const enviados = logs.filter(l => l.status === 'enviado');
       const totalDisparos = logs.length;
       const custoEstimado = enviados.length * 0.31;
       const taxaEntrega = totalDisparos > 0 ? Math.round((enviados.length / totalDisparos) * 100) : null;
+      const resgatados = enviados.filter(l => l.resgatado).length;
+      const taxaConversao = enviados.length > 0 ? Math.round((resgatados / enviados.length) * 100) : null;
 
       document.getElementById('mDisparos').textContent = totalDisparos > 0 ? totalDisparos.toLocaleString('pt-BR') : '—';
       document.getElementById('mCusto').textContent = enviados.length > 0 ? `R$ ${custoEstimado.toFixed(2).replace('.', ',')}` : 'R$ 0';
       document.getElementById('mEntrega').textContent = taxaEntrega !== null ? `${taxaEntrega}%` : '—';
+      document.getElementById('mResgate').textContent = enviados.length > 0 ? `${resgatados} (${taxaConversao}%)` : '—';
 
       // Agrupa disparos enviados por especialidade
       const porEsp = {};
