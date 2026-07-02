@@ -139,6 +139,12 @@
   }
   .badge.ok{background:var(--ok-bg);color:var(--ok-tx);}
   .badge.fail{background:var(--fail-bg);color:var(--fail-tx);}
+  .logout{
+    background:none;border:1px solid var(--line);border-radius:10px;padding:8px 14px;
+    color:var(--ink-soft);font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;
+    display:flex;align-items:center;gap:6px;flex-shrink:0;
+  }
+  .logout:hover{border-color:var(--fail-tx);color:var(--fail-tx);}
   .cat-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px;}
   @media (max-width:680px){
     .metrics{grid-template-columns:repeat(2,1fr);}
@@ -159,7 +165,10 @@
     </div>
     <span class="spacer"></span>
     <span class="period">Junho 2026</span>
-    <button id="logoutBtn" style="background:none;border:none;color:var(--ink-soft);font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;">Sair</button>
+    <button id="logoutBtn" class="logout">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Sair
+    </button>
   </div>
 
   <div class="section">
